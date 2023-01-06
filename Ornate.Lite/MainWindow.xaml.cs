@@ -14,10 +14,6 @@ namespace Ornate.Lite
         public MainWindow()
         {
             InitializeComponent();
-
-#if WINDOWLESS
-            Title += " - OSR mode";
-#endif
         }
 
         private void InitializeComponent()

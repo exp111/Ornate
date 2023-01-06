@@ -1,8 +1,7 @@
-using System.Runtime.InteropServices;
+using System.IO;
 using Avalonia;
 using Xilium.CefGlue;
 using Xilium.CefGlue.Common;
-using Xilium.CefGlue.Common.Shared;
 
 namespace Ornate.Lite
 {
@@ -17,12 +16,10 @@ namespace Ornate.Lite
                       {
                           UseWindowsUIComposition = false
                       })
-                      .AfterSetup(_ => CefRuntimeLoader.Initialize(new CefSettings() {
-#if WINDOWLESS
-                          WindowlessRenderingEnabled = true
-#else
-                          WindowlessRenderingEnabled = false
-#endif
+                      .AfterSetup(_ => CefRuntimeLoader.Initialize(new CefSettings()
+                      { //TODO: instead use a mobile user agent?
+                          LogFile = Path.GetFullPath("cef.log"),
+                          CachePath = Path.GetFullPath("cache"), // needed for localstorage to persist
                       }))
                       .StartWithClassicDesktopLifetime(args);
                       

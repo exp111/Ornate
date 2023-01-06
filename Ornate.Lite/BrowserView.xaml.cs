@@ -12,6 +12,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
+using Xilium.CefGlue;
 using Xilium.CefGlue.Avalonia;
 using Xilium.CefGlue.Common.Events;
 
@@ -20,7 +21,7 @@ namespace Ornate.Lite
     public class BrowserView : UserControl
     {
         private AvaloniaCefBrowser browser;
-        private static readonly string BundlePath = Path.Combine("data", "bundle.idx");
+        private static readonly string BundlePath = Path.Combine("data", "bundle.idx"); // Uses the relative path
 
         public BrowserView()
         {
@@ -30,14 +31,14 @@ namespace Ornate.Lite
 
             browser = new AvaloniaCefBrowser();
             //browser.Settings.FileAccessFromFileUrls = CefState.Enabled; //TODO: needed?
-            //browser.LoadStart += OnBrowserLoadStart; // probably not needed if we delete the address bar
+            //browser.Settings.UniversalAccessFromFileUrls = CefState.Enabled;
             browser.TitleChanged += OnBrowserTitleChanged;
             // Needed to run .idx files as html
             browser.RequestHandler = new IDXRequestHandler(); //TODO: instead just rename the file to .html?
-            //browser.Settings.UniversalAccessFromFileUrls = CefState.Enabled;
+            browser.Settings.ApplicationCache = CefState.Enabled;
+            browser.Settings.LocalStorage = CefState.Enabled;
             browserWrapper.Child = browser;
-
-            //TODO: save localstorage on change (and load on startup)
+            
             //TODO: GPS
 
             OpenGame();
