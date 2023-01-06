@@ -1,0 +1,60 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net7.0</TargetFramework>
+    <AssemblyName>Ornate.Lite</AssemblyName>
+    <RootNamespace>Ornate.Lite</RootNamespace>
+    <Configurations>Debug;Release;Debug_WindowlessRender</Configurations>
+  </PropertyGroup>
+    
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_WindowlessRender|AnyCPU'">
+    <DebugType></DebugType>
+    <DefineConstants>$(DefineConstants);WINDOWLESS</DefineConstants>
+  </PropertyGroup>
+  
+  <PropertyGroup>
+    <CFBundleName>Ornate.Lite</CFBundleName> <!-- Also defines .app file name -->
+    <CFBundleDisplayName>OrnateLite</CFBundleDisplayName>
+    <CFBundleIdentifier>com.example</CFBundleIdentifier>
+    <CFBundleVersion>1.0.0</CFBundleVersion>
+    <CFBundlePackageType>AAPL</CFBundlePackageType>
+    <CFBundleSignature>4242</CFBundleSignature>
+    <CFBundleShortVersionString>OrnateLite</CFBundleShortVersionString>
+    <CFBundleExecutable>Ornate.Lite</CFBundleExecutable>
+    <CFBundleIconFile>AppName.icns</CFBundleIconFile> <!-- Will be copied from output directory -->
+    <NSPrincipalClass>NSApplication</NSPrincipalClass>
+    <NSHighResolutionCapable>true</NSHighResolutionCapable>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup><!--<EmbeddedResource Include="App.xaml" />
+    <EmbeddedResource Include="BrowserView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MainWindow.xaml" />-->
+  
+    <None Remove="App.xaml" />
+    <None Remove="BrowserView.xaml" />
+    <None Remove="MainWindow.xaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AvaloniaXaml Include="App.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </AvaloniaXaml>
+    <AvaloniaXaml Include="BrowserView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </AvaloniaXaml>
+    <AvaloniaXaml Include="MainWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </AvaloniaXaml>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia.Desktop" Version="0.10.18" />
+    <PackageReference Include="Avalonia.Diagnostics" Version="0.10.18" />
+    <PackageReference Include="CefGlue.Avalonia" Version="91.4472.31" />
+  </ItemGroup>
+
+</Project>
