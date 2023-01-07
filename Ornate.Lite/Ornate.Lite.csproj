@@ -55,7 +55,15 @@
     <PackageReference Include="Avalonia.Desktop" Version="0.10.18" />
     <PackageReference Include="Avalonia.Diagnostics" Version="0.10.18" />
     <PackageReference Include="CefGlue.Avalonia" Version="91.4472.31" />
-    <PackageReference Include="ReactiveUI" Version="18.4.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Dialogs\InfoWindow.axaml.cs">
+      <DependentUpon>InfoWindow.axaml</DependentUpon>
+    </Compile>
+    <Compile Update="Dialogs\OKWindow.axaml.cs">
+      <DependentUpon>OKWindow.axaml</DependentUpon>
+    </Compile>
   </ItemGroup>
 
 </Project>

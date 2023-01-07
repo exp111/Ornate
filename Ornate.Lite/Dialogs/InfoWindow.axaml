@@ -3,9 +3,11 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="200"
-        x:Class="Ornate.Lite.ProgressBarWindow"
-        Title="ProgressBarWindow">
+		MaxWidth="400" MaxHeight="200"
+		WindowStartupLocation="CenterOwner"
+        x:Class="Ornate.Lite.Dialogs.InfoWindow"
+        Title="Info">
 	<Panel>
-  <ProgressBar HorizontalAlignment="Center" VerticalAlignment="Center"></ProgressBar>
+		<TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding Prompt}">Prompt</TextBlock>
 	</Panel>
 </Window>

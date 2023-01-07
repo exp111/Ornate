@@ -1,13 +1,14 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace Ornate.Lite
+namespace Ornate.Lite.Dialogs
 {
-    public class ConfirmationWindow : Window, INotifyPropertyChanged
+    public class InfoWindow : Window, INotifyPropertyChanged
     {
         // Needed to notify the view that a property has changed
         public event PropertyChangedEventHandler PropertyChanged;
@@ -28,12 +29,12 @@ namespace Ornate.Lite
             }
         }
 
-        private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
+        private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        public ConfirmationWindow()
+        public InfoWindow()
         {
             InitializeComponents();
         }

@@ -5,11 +5,10 @@
         mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="200"
 		MaxWidth="400" MaxHeight="200"
 		WindowStartupLocation="CenterOwner"
-        x:Class="Ornate.Lite.ConfirmationWindow"
-        Title="Confirmation">
+		x:Class="Ornate.Lite.Dialogs.ProgressBarWindow"
+        Title="Progress Bar">
 	<Panel>
-		<TextBlock HorizontalAlignment="Center" Text="{Binding Prompt}">Prompt</TextBlock>
-		<Button Name="confirm" HorizontalAlignment="Left" VerticalAlignment="Center" Width="100">Confirm</Button>
-		<Button Name="abort" HorizontalAlignment="Right" VerticalAlignment="Center" Width="100">Abort</Button>
+		<TextBlock HorizontalAlignment="Center" VerticalAlignment="Top" Text="{Binding Text}"></TextBlock>
+        <ProgressBar HorizontalAlignment="Center" VerticalAlignment="Center" Minimum="{Binding Min}" Maximum="{Binding Max}" Value="{Binding Value}" ShowProgressText="True"></ProgressBar>
 	</Panel>
 </Window>
