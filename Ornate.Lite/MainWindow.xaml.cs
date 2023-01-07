@@ -189,11 +189,6 @@ namespace Ornate.Lite
             //TODO: remove when done
         }
 
-        private void Dialog_Opened(object sender, EventArgs e)
-        {
-            throw new NotImplementedException();
-        }
-
         private void OnReloadGameMenuItemClick(object sender, RoutedEventArgs e) => OnReloadGameNativeMenuItemClick(sender, e);
 
         private void OnOpenDevToolsMenuItemClick(object sender, RoutedEventArgs e) => OnOpenDevToolsNativeMenuItemClick(sender, e);
