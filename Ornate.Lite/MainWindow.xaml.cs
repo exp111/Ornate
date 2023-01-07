@@ -1,10 +1,15 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Dialogs;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
 using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.IO;
+using System.IO.Compression;
+using System.Linq;
 using Xilium.CefGlue.Common;
 
 namespace Ornate.Lite
@@ -52,8 +57,66 @@ namespace Ornate.Lite
             ActiveBrowserView.OpenDevTools();
         }
 
+        private async void OnExtractAPKNativeMenuItemClick(object sender, EventArgs e)
+        {
+            OpenFileDialog openFileDialog = new()
+            {
+                AllowMultiple = false,
+                Filters = new()
+                {
+                    new()
+                    {
+                        Name = "APK Files",
+                        Extensions = new(){ "apk" }
+                    },
+                    new()
+                    {
+                        Name = "All Files",
+                        Extensions = new(){ "*" }
+                    }
+                },
+
+            };
+            var files = await openFileDialog.ShowAsync(this);
+            if (files == null || files.Length == 0) // Nothing given
+                return;
+
+            //TODO: validate apk?
+
+            if (Directory.Exists(BrowserView.DataPath))
+            {
+                //TODO: warn user + let them confirm
+                // delete folder
+                Directory.Delete(BrowserView.DataPath, true);
+            }
+
+            //TODO: kill browser beforehand?
+            // open the apk as a zip, extract the "assets" folder content into "data"
+            const string assetsFolder = "assets/";
+            var zip = ZipFile.OpenRead(files[0]);
+            // find all entries in "assets" folder and below
+            var assets = zip.Entries.Where(e => e.FullName.StartsWith(assetsFolder));
+            if (!assets.Any()) // didnt find anything
+                return; //TODO: warning
+
+            //TODO: progress bar
+            foreach (var asset in assets)
+            {
+                // put the path together: "data/" + path of file we're looking at (removing the "assets/" at the start)
+                var path = Path.Combine(BrowserView.DataPath, asset.FullName.Substring(assetsFolder.Length));
+                // check if parent dir exists => if not create it
+                if (!Directory.Exists(path))
+                    Directory.CreateDirectory(Path.GetDirectoryName(path));
+
+                asset.ExtractToFile(path, true);
+            }
+            //TODO: done info
+        }
+
         private void OnReloadGameMenuItemClick(object sender, RoutedEventArgs e) => OnReloadGameNativeMenuItemClick(sender, e);
 
         private void OnOpenDevToolsMenuItemClick(object sender, RoutedEventArgs e) => OnOpenDevToolsNativeMenuItemClick(sender, e);
+
+        private void OnExtractAPKMenuItemClick(object sender, RoutedEventArgs e) => OnExtractAPKNativeMenuItemClick(sender, e);
     }
 }

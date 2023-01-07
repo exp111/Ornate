@@ -21,7 +21,8 @@ namespace Ornate.Lite
     public class BrowserView : UserControl
     {
         private AvaloniaCefBrowser browser;
-        private static readonly string BundlePath = Path.Combine("data", "bundle.idx"); // Uses the relative path
+        public static readonly string DataPath = "data";
+        public static readonly string BundlePath = Path.Combine(DataPath, "bundle.idx"); // Uses the relative path
 
         public BrowserView()
         {
@@ -45,7 +46,7 @@ namespace Ornate.Lite
         }
 
         // Checks if the game data exists (or at least the start file)
-        static bool CheckForData()
+        public static bool CheckForData()
         {
             return File.Exists(BundlePath);
         }
