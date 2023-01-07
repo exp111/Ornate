@@ -184,6 +184,20 @@ namespace Ornate.Lite
             await okWindow.ShowDialog(this);
         }
 
+        private async void OnOpenWebsiteNativeMenuItemClick(object sender, EventArgs e)
+        {
+            TextInputWindow inputDialog = new()
+            {
+                Title = "Open Website",
+                Prompt = "Input the url:"
+            };
+            var result = await inputDialog.ShowDialog<string>(this);
+            if (result == null)
+                return;
+
+            ActiveBrowserView.SetAddress(result);
+        }
+
         private async void OnDebugMenuItemClick(object sender, RoutedEventArgs e)
         {
             //TODO: remove when done
@@ -194,5 +208,8 @@ namespace Ornate.Lite
         private void OnOpenDevToolsMenuItemClick(object sender, RoutedEventArgs e) => OnOpenDevToolsNativeMenuItemClick(sender, e);
 
         private void OnExtractAPKMenuItemClick(object sender, RoutedEventArgs e) => OnExtractAPKNativeMenuItemClick(sender, e);
+
+        private void OnOpenWebsiteMenuItemClick(object sender, RoutedEventArgs e) => OnOpenWebsiteNativeMenuItemClick(sender, e);
+
     }
 }

@@ -61,6 +61,9 @@
     <Compile Update="Dialogs\InfoWindow.axaml.cs">
       <DependentUpon>InfoWindow.axaml</DependentUpon>
     </Compile>
+    <Compile Update="Dialogs\TextInputWindow.axaml.cs">
+      <DependentUpon>TextInputWindow.axaml</DependentUpon>
+    </Compile>
     <Compile Update="Dialogs\OKWindow.axaml.cs">
       <DependentUpon>OKWindow.axaml</DependentUpon>
     </Compile>

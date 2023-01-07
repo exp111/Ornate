@@ -32,7 +32,7 @@ namespace Ornate.Lite
 
             browser = new AvaloniaCefBrowser();
             //browser.Settings.FileAccessFromFileUrls = CefState.Enabled; //TODO: needed?
-            //browser.Settings.UniversalAccessFromFileUrls = CefState.Enabled;
+            browser.Settings.UniversalAccessFromFileUrls = CefState.Enabled;
             browser.TitleChanged += OnBrowserTitleChanged;
             // Needed to run .idx files as html
             browser.RequestHandler = new IDXRequestHandler(); //TODO: instead just rename the file to .html?
@@ -40,7 +40,8 @@ namespace Ornate.Lite
             browser.Settings.LocalStorage = CefState.Enabled;
             browserWrapper.Child = browser;
             
-            //TODO: GPS
+            //TODO: need to grant geolocation permissions
+            //TODO: GPS location
 
             OpenGame();
         }
@@ -82,6 +83,11 @@ namespace Ornate.Lite
         public void OpenDevTools()
         {
             browser.ShowDeveloperTools();
+        }
+
+        public void SetAddress(string url)
+        {
+            browser.Address = url;
         }
 
         public void Dispose()
