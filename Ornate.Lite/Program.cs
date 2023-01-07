@@ -8,22 +8,19 @@ namespace Ornate.Lite
     class Program
     {
 
-        static int Main(string[] args)
-        {
+        static void Main(string[] args) => BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
+
+        static AppBuilder BuildAvaloniaApp() =>
             AppBuilder.Configure<App>()
-                      .UsePlatformDetect()
-                      .With(new Win32PlatformOptions
-                      {
-                          UseWindowsUIComposition = false
-                      })
-                      .AfterSetup(_ => CefRuntimeLoader.Initialize(new CefSettings()
-                      { //TODO: instead use a mobile user agent?
-                          LogFile = Path.GetFullPath("cef.log"),
-                          CachePath = Path.GetFullPath("cache"), // needed for localstorage to persist
-                      }))
-                      .StartWithClassicDesktopLifetime(args);
-                      
-            return 0;
-        }
+                .UsePlatformDetect()
+                .With(new Win32PlatformOptions
+                {
+                    UseWindowsUIComposition = false
+                })
+                .AfterSetup(_ => CefRuntimeLoader.Initialize(new CefSettings()
+                { //TODO: instead use a mobile user agent?
+                    LogFile = Path.GetFullPath("cef.log"),
+                    CachePath = Path.GetFullPath("cache"), // needed for localstorage to persist
+                }));
     }
 }

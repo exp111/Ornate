@@ -25,6 +25,7 @@ namespace Ornate.Lite
         {
             AvaloniaXamlLoader.Load(this);
 
+            return;
             CreateBrowserView();
 
             var mainMenu = this.FindControl<Menu>("mainMenu");
@@ -43,6 +44,7 @@ namespace Ornate.Lite
 
         private void CreateBrowserView()
         {
+            //TODO: add autostart option to disable autostart?
             var view = new BrowserView();
             this.FindControl<Decorator>("browser").Child = view; //TODO: instead add multiple tabs again for multi accounting?
         }
@@ -86,6 +88,13 @@ namespace Ornate.Lite
             if (Directory.Exists(BrowserView.DataPath))
             {
                 //TODO: warn user + let them confirm
+                ConfirmationWindow dialog = new()
+                {
+                    Title = "Warning!",
+                    Prompt = "You are about to delete and replace your existing content. Are you sure?"
+                };
+                await dialog.ShowDialog(this);
+                return;
                 // delete folder
                 Directory.Delete(BrowserView.DataPath, true);
             }
@@ -111,6 +120,18 @@ namespace Ornate.Lite
                 asset.ExtractToFile(path, true);
             }
             //TODO: done info
+        }
+
+        private async void OnDebugMenuItemClick(object sender, RoutedEventArgs e)
+        {
+            //TODO: remove when done
+            ConfirmationWindow dialog = new()
+            {
+                Title = "Warning!",
+                Prompt = "You are about to delete and replace your existing content. Are you sure?"
+            };
+            await dialog.ShowDialog(this);
+            //TODO: result
         }
 
         private void OnReloadGameMenuItemClick(object sender, RoutedEventArgs e) => OnReloadGameNativeMenuItemClick(sender, e);

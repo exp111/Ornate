@@ -1,0 +1,15 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="200"
+		MaxWidth="400" MaxHeight="200"
+		WindowStartupLocation="CenterOwner"
+        x:Class="Ornate.Lite.ConfirmationWindow"
+        Title="Confirmation">
+	<Panel>
+		<TextBlock HorizontalAlignment="Center" Text="{Binding Prompt}">Prompt</TextBlock>
+		<Button Name="confirm" HorizontalAlignment="Left" VerticalAlignment="Center" Width="100">Confirm</Button>
+		<Button Name="abort" HorizontalAlignment="Right" VerticalAlignment="Center" Width="100">Abort</Button>
+	</Panel>
+</Window>

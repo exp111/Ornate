@@ -20,6 +20,7 @@
     <DockPanel>
         <Menu Name="mainMenu" DockPanel.Dock="Top">
             <MenuItem Header="_File">
+				<MenuItem Header="_Debug" Click="OnDebugMenuItemClick"/>
                 <MenuItem Header="_Open Dev Tools..." Click="OnOpenDevToolsMenuItemClick"/>
                 <MenuItem Header="_Reload Game" Click="OnReloadGameMenuItemClick" />
 				<MenuItem Header="_Extract Content from APK..." Click="OnExtractAPKMenuItemClick" />
