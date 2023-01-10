@@ -1,28 +1,21 @@
 ﻿using Avalonia.Controls;
-using Avalonia.Input;
 using Avalonia.Markup.Xaml;
-using Avalonia.Threading;
-using SkiaSharp;
+using Avalonia.VisualTree;
+using CefNet;
+using CefNet.Avalonia;
+using CefNet.DevTools.Protocol.Emulation;
+using Ornate.Lite.CefNetStuff;
+using Ornate.Lite.Dialogs;
 using System;
-using System.Dynamic;
 using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web;
-using Xilium.CefGlue;
-using Xilium.CefGlue.Avalonia;
-using Xilium.CefGlue.Common.Events;
 
 namespace Ornate.Lite
 {
     public class BrowserView : UserControl
     {
-        private AvaloniaCefBrowser browser;
+        private WebView browser;
         public static readonly string DataPath = "data";
-        public static readonly string BundlePath = Path.Combine(DataPath, "bundle.idx"); // Uses the relative path
+        public static readonly string BundlePath = Path.Combine(DataPath, "bundle.html"); // Uses the relative path
 
         public BrowserView()
         {
@@ -30,20 +23,9 @@ namespace Ornate.Lite
 
             var browserWrapper = this.FindControl<Decorator>("browserWrapper");
 
-            browser = new AvaloniaCefBrowser();
-            //browser.Settings.FileAccessFromFileUrls = CefState.Enabled; //TODO: needed?
-            browser.Settings.UniversalAccessFromFileUrls = CefState.Enabled;
-            browser.TitleChanged += OnBrowserTitleChanged;
-            // Needed to run .idx files as html
-            browser.RequestHandler = new IDXRequestHandler(); //TODO: instead just rename the file to .html?
-            browser.Settings.ApplicationCache = CefState.Enabled;
-            browser.Settings.LocalStorage = CefState.Enabled;
+            browser = new CustomWebView();
+            browser.BrowserCreated += (_, _) => OpenGame();
             browserWrapper.Child = browser;
-            
-            //TODO: need to grant geolocation permissions
-            //TODO: GPS location
-
-            OpenGame();
         }
 
         // Checks if the game data exists (or at least the start file)
@@ -52,18 +34,29 @@ namespace Ornate.Lite
             return File.Exists(BundlePath);
         }
 
+        public void SetGeolocation()
+        {
+            //TODO: make this callable
+            browser.ExecuteDevToolsMethodAsync("Emulation.setGeolocationOverride",
+                """{"latitude":52.520007,"longitude":13.404954,"accuracy":150}""");
+        }
         // Opens the game in the browser
         public bool OpenGame()
         {
             if (CheckForData())
             {
-                browser.Address = $"file://{Path.GetFullPath(BundlePath)}";
+                browser.Navigate($"file://{Path.GetFullPath(BundlePath)}");
                 return true;
             }
             else
             {
-                //TODO: inform the user better
-                browser.Address = $"javascript:alert('No data folder or bundle.idx found: {Path.GetFullPath(BundlePath).Replace(@"\", @"\\")}')";
+                // inform the user better
+                OKWindow noAssetsFoundWindow = new()
+                {
+                    Title = "Error",
+                    Prompt = $"No data folder or bundle.idx found under {Path.GetFullPath(BundlePath)}.\nExtract the data through File > Extract Content from APK and reload the game."
+                };
+                noAssetsFoundWindow.ShowDialog(this.FindAncestorOfType<MainWindow>());
                 return false;
             }
         }
@@ -82,17 +75,17 @@ namespace Ornate.Lite
 
         public void OpenDevTools()
         {
-            browser.ShowDeveloperTools();
+            browser.ShowDevTools();
         }
 
         public void SetAddress(string url)
         {
-            browser.Address = url;
+            browser.Navigate(url);
         }
 
         public void Dispose()
         {
-            browser.Dispose();
+            browser.Close();
         }
     }
 }

@@ -13,7 +13,6 @@ using System.IO.Compression;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Xilium.CefGlue.Common;
 
 namespace Ornate.Lite
 {
@@ -201,6 +200,7 @@ namespace Ornate.Lite
         private async void OnDebugMenuItemClick(object sender, RoutedEventArgs e)
         {
             //TODO: remove when done
+            ActiveBrowserView.SetGeolocation();
         }
 
         private void OnReloadGameMenuItemClick(object sender, RoutedEventArgs e) => OnReloadGameNativeMenuItemClick(sender, e);
