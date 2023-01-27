@@ -1,18 +1,19 @@
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using System;
+using System.Globalization;
+using System.IO;
 
 namespace Ornate.Lite
 {
     public class App : Application
     {
-        public static event EventHandler FrameworkInitialized;
-        public static event EventHandler FrameworkShutdown;
-
         public override void Initialize()
         {
             AvaloniaXamlLoader.Load(this);
+            InitWebView2();
         }
 
         public override void OnFrameworkInitializationCompleted()
@@ -20,21 +21,28 @@ namespace Ornate.Lite
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
                 desktop.MainWindow = new MainWindow();
-                desktop.Startup += Startup;
-                desktop.Exit += Exit;
             }
 
             base.OnFrameworkInitializationCompleted();
         }
 
-        private void Startup(object sender, ControlledApplicationLifetimeStartupEventArgs e)
+        static void InitWebView2()
         {
-            FrameworkInitialized?.Invoke(this, EventArgs.Empty);
-        }
+            if (WebView2.IsSupported)
+            {
+                WebView2.DefaultCreationProperties = new()
+                {
+                    Language = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName,
+                    UserDataFolder = GetUserDataFolder(),
+                };
 
-        private void Exit(object sender, ControlledApplicationLifetimeExitEventArgs e)
-        {
-            FrameworkShutdown?.Invoke(this, EventArgs.Empty);
+                static string GetUserDataFolder()
+                {
+                    var path = Path.GetFullPath("UserData");
+                    if (!Directory.Exists(path)) Directory.CreateDirectory(path);
+                    return path;
+                }
+            }
         }
     }
 }

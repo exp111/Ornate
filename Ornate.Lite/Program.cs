@@ -1,60 +1,50 @@
 using System;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using Avalonia;
-using Avalonia.Threading;
-using CefNet;
-using Ornate.Lite.CefNetStuff;
+using Microsoft.Win32;
 
 namespace Ornate.Lite
 {
     class Program
     {
-        private static CefAppImpl app;
-
         [STAThread]
-        public static void Main(string[] args) //TODO: game crashes after a few seconds
+        public static void Main(string[] args)
+        {
+            // If urn:schemas-microsoft-com:compatibility.v1 supportedOS exists in the app.manifest file, the control will not display normally, but it is normal in WPF
+            if (IsProgramInCompatibilityMode())
+            {
+                //TODO: alert the use
+                Console.WriteLine("Windows Program Compatibility mode is on. Turn it off and then try again");
+                return;
+            }
+
+            BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
+        }
+
+        static bool IsProgramInCompatibilityMode()
         {
             try
             {
-                var path = Path.GetFullPath("CEF");
-                var settings = new CefSettings();
-                settings.MultiThreadedMessageLoop = true;
-                settings.NoSandbox = true;
-                settings.WindowlessRenderingEnabled = true;
-                settings.LocalesDirPath = Path.Combine(path, "Resources", "locales");
-                settings.ResourcesDirPath = Path.Combine(path, "Resources");
-                settings.LogSeverity = CefLogSeverity.Warning;
-                settings.UncaughtExceptionStackSize = 8;
-                settings.CachePath = Path.GetFullPath("cache");
-                settings.LogFile = Path.GetFullPath("cef.log");
-                //TODO: spoof android user agent
-
-                app = new CefAppImpl();
-                //app.CefProcessMessageReceived += App_CefProcessMessageReceived;
-                app.ScheduleMessagePumpWorkCallback = OnScheduleMessagePumpWork;
-
-                app.Initialize(Path.Combine(path, "Release"), settings);
-
-                BuildAvaloniaApp().StartWithCefNetApplicationLifetime(args);
+                foreach (var item in new[] { Registry.CurrentUser, Registry.LocalMachine })
+                {
+                    using var layers = item.OpenSubKey(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers");
+                    var value = layers?.GetValue(Environment.ProcessPath)?.ToString();
+                    if (value != null)
+                    {
+                        if (value.Contains("WIN8RTM", StringComparison.OrdinalIgnoreCase)) return true;
+                        if (value.Contains("WIN7RTM", StringComparison.OrdinalIgnoreCase)) return true;
+                    }
+                }
             }
-            catch (Exception e)
+            catch
             {
-                Console.WriteLine(e);
             }
+            return false;
         }
 
-        public static AppBuilder BuildAvaloniaApp() =>
-            AppBuilder.Configure<App>()
-                .UsePlatformDetect().LogToTrace();
-
-        private static async void OnScheduleMessagePumpWork(long delayMs)
-        {
-            await Task.Delay((int)delayMs);
-            Dispatcher.UIThread.Post(CefApi.DoMessageLoopWork);
-        }
-
-        //TODO: CefProcessMessageReceived?
+        // Avalonia configuration, don't remove; also used by visual designer.
+        public static AppBuilder BuildAvaloniaApp()
+            => AppBuilder.Configure<App>()
+                .UsePlatformDetect()
+                .LogToTrace();
     }
 }

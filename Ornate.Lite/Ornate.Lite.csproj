@@ -54,9 +54,7 @@
   <ItemGroup>
     <PackageReference Include="Avalonia.Desktop" Version="0.10.18" />
     <PackageReference Include="Avalonia.Diagnostics" Version="0.10.18" />
-    <PackageReference Include="CefNet" Version="105.3.22248.142" />
-    <PackageReference Include="CefNet.Avalonia" Version="105.3.22248.142" />
-    <PackageReference Include="CefNet.DevTools.Protocol" Version="105.0.5195.54" />
+    <PackageReference Include="WebView2.Avalonia" Version="1.0.1264.42-preview.220713.10" />
   </ItemGroup>
 
   <ItemGroup>

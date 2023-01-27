@@ -1,9 +1,19 @@
 ﻿<UserControl xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        x:Class="Ornate.Lite.BrowserView">
+		xmlns:wv2="clr-namespace:Avalonia.Controls;assembly=Avalonia.WebView2"
+		x:Class="Ornate.Lite.BrowserView">
 
     <DockPanel>
         <!--<TextBox x:Name="addressTextBox" DockPanel.Dock="Top" KeyDown="OnAddressTextBoxKeyDown" />-->
-        <Decorator x:Name="browserWrapper"/>
+		<Grid>
+			<TextBlock
+				x:Name="InfoLabel"
+				HorizontalAlignment="Center"
+				VerticalAlignment="Center"
+				FontSize="24"
+				Text="Loading…" />
+			<wv2:WebView2
+				x:Name="WebView2"/>
+		</Grid>
     </DockPanel>
 </UserControl>
