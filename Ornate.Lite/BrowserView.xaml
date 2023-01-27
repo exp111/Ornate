@@ -1,6 +1,6 @@
 ﻿<UserControl xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-		xmlns:wv2="clr-namespace:Avalonia.Controls;assembly=Avalonia.WebView2"
+		xmlns:local="using:Ornate.Lite.WebView"
 		x:Class="Ornate.Lite.BrowserView">
 
     <DockPanel>
@@ -12,8 +12,8 @@
 				VerticalAlignment="Center"
 				FontSize="24"
 				Text="Loading…" />
-			<wv2:WebView2
-				x:Name="WebView2"/>
+			<local:CustomWebView
+				x:Name="WebView"/>
 		</Grid>
     </DockPanel>
 </UserControl>

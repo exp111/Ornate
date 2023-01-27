@@ -41,26 +41,25 @@ namespace Ornate.Lite
             }
         }
 
-        private BrowserView ActiveBrowserView => (BrowserView) this.FindControl<Decorator>("browser").Child;
+        private BrowserView ActiveBrowserView;
 
         private void CreateBrowserView()
         {
             //TODO: add autostart option to disable autostart?
-            var view = new BrowserView();
-            this.FindControl<Decorator>("browser").Child = view; //TODO: instead add multiple tabs again for multi accounting?
+            ActiveBrowserView = this.FindControl<BrowserView>("browser"); //TODO: instead add multiple tabs again for multi accounting?
         }
 
-        private void OnReloadGameNativeMenuItemClick(object sender, EventArgs e)
+        private void OnReloadGameMenuItemClick(object sender, RoutedEventArgs e)
         {
             ActiveBrowserView.ReloadGame();
         }
 
-        private void OnOpenDevToolsNativeMenuItemClick(object sender, EventArgs e)
+        private void OnOpenDevToolsMenuItemClick(object sender, RoutedEventArgs e)
         {
             ActiveBrowserView.OpenDevTools();
         }
 
-        private async void OnExtractAPKNativeMenuItemClick(object sender, EventArgs e)
+        private async void OnExtractAPKMenuItemClick(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFileDialog = new()
             {
@@ -183,7 +182,7 @@ namespace Ornate.Lite
             await okWindow.ShowDialog(this);
         }
 
-        private async void OnOpenWebsiteNativeMenuItemClick(object sender, EventArgs e)
+        private async void OnOpenWebsiteMenuItemClick(object sender, RoutedEventArgs e)
         {
             TextInputWindow inputDialog = new()
             {
@@ -203,13 +202,10 @@ namespace Ornate.Lite
             ActiveBrowserView.SetGeolocation();
         }
 
-        private void OnReloadGameMenuItemClick(object sender, RoutedEventArgs e) => OnReloadGameNativeMenuItemClick(sender, e);
-
-        private void OnOpenDevToolsMenuItemClick(object sender, RoutedEventArgs e) => OnOpenDevToolsNativeMenuItemClick(sender, e);
-
-        private void OnExtractAPKMenuItemClick(object sender, RoutedEventArgs e) => OnExtractAPKNativeMenuItemClick(sender, e);
-
-        private void OnOpenWebsiteMenuItemClick(object sender, RoutedEventArgs e) => OnOpenWebsiteNativeMenuItemClick(sender, e);
-
+        private async void OnMuteMenuItemClick(object sender, RoutedEventArgs e)
+        {
+            //TODO: mute checkbox
+            ActiveBrowserView.Mute(true);
+        }
     }
 }

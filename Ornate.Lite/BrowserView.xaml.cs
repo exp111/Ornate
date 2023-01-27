@@ -19,8 +19,7 @@ namespace Ornate.Lite
         {
             AvaloniaXamlLoader.Load(this);
 
-            //TODO: custom webview wrapper that does the geolocation permission handler
-            browser = this.FindControl<WebView2>("WebView2");
+            browser = this.FindControl<WebView2>("WebView");
             browser.CoreWebView2InitializationCompleted += (_, _) => OpenGame();
             browser.EnsureCoreWebView2Async(); // Force initialization because Source property isnt set
 
@@ -92,6 +91,12 @@ namespace Ornate.Lite
         public void SetAddress(string url)
         {
             browser.CoreWebView2?.Navigate(url);
+        }
+
+        public void Mute(bool muted)
+        {
+            if (browser.CoreWebView2 != null)
+                browser.CoreWebView2.IsMuted = muted;
         }
 
         public void Dispose()
