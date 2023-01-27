@@ -199,7 +199,7 @@ namespace Ornate.Lite
         private async void OnDebugMenuItemClick(object sender, RoutedEventArgs e)
         {
             //TODO: remove when done
-            ActiveBrowserView.SetGeolocation();
+            ActiveBrowserView.SetGeolocation(52.520007, 13.404954, 150);
         }
 
         private async void OnMuteMenuItemClick(object sender, RoutedEventArgs e)

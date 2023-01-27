@@ -2,6 +2,7 @@
 using Avalonia.Markup.Xaml;
 using Avalonia.VisualTree;
 using Microsoft.Web.WebView2.Core;
+using Microsoft.Web.WebView2.Core.DevToolsProtocolExtension;
 using Ornate.Lite.Dialogs;
 using System;
 using System.IO;
@@ -10,6 +11,7 @@ namespace Ornate.Lite
 {
     public class BrowserView : UserControl
     {
+        private DevToolsProtocolHelper DevTools;
         private WebView2 browser;
         private TextBlock infoLabel;
         public static readonly string DataPath = "data";
@@ -20,7 +22,7 @@ namespace Ornate.Lite
             AvaloniaXamlLoader.Load(this);
 
             browser = this.FindControl<WebView2>("WebView");
-            browser.CoreWebView2InitializationCompleted += (_, _) => OpenGame();
+            browser.CoreWebView2InitializationCompleted += (_, _) => Init();
             browser.EnsureCoreWebView2Async(); // Force initialization because Source property isnt set
 
             // Do loading screen
@@ -36,18 +38,21 @@ namespace Ornate.Lite
             }
         }
 
+        private void Init()
+        {
+            DevTools = browser.CoreWebView2?.GetDevToolsProtocolHelper();
+            OpenGame();
+        }
+
         // Checks if the game data exists (or at least the start file)
         public static bool CheckForData()
         {
             return File.Exists(BundlePath);
         }
 
-        public void SetGeolocation()
+        public void SetGeolocation(double? latitude, double? longitude, double? accuracy)
         {
-            //TODO: make this callable
-            //TODO: adapt for webview2, https://learn.microsoft.com/en-us/microsoft-edge/webview2/how-to/chromium-devtools-protocol
-            //browser.ExecuteDevToolsMethodAsync("Emulation.setGeolocationOverride",
-            //    """{"latitude":52.520007,"longitude":13.404954,"accuracy":150}""");
+            DevTools.Emulation.SetGeolocationOverrideAsync(latitude, longitude, accuracy);
         }
 
         // Opens the game in the browser
