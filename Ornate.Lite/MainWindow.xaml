@@ -5,21 +5,22 @@
         MinWidth="500"
         MinHeight="300"
         Title="Ornate.Lite">
-    <DockPanel>
-        <Menu Name="mainMenu" DockPanel.Dock="Top">
-            <MenuItem Header="_File">
+	<DockPanel>
+		<Menu Name="mainMenu" DockPanel.Dock="Top">
+			<MenuItem Header="_File">
 				<MenuItem Header="_Debug" Click="OnDebugMenuItemClick"/>
-                <MenuItem Header="_Open Dev Tools..." Click="OnOpenDevToolsMenuItemClick"/>
-                <MenuItem Header="_Reload Game" Click="OnReloadGameMenuItemClick" />
+				<MenuItem Header="_Open Dev Tools..." Click="OnOpenDevToolsMenuItemClick"/>
+				<MenuItem Header="_Reload Game" Click="OnReloadGameMenuItemClick" />
 				<MenuItem Header="_Extract Content from APK..." Click="OnExtractAPKMenuItemClick" />
 				<MenuItem Header="_Open Website" Click="OnOpenWebsiteMenuItemClick" />
-				<MenuItem Header="_Mute" Click="OnMuteMenuItemClick" />
-            </MenuItem>
-        </Menu>
+				<MenuItem Header="_Toggle Mute" Click="OnMuteMenuItemClick" />
+				<MenuItem Header="_Show Sniffer" Click="OnSnifferMenuItemClick" />
+			</MenuItem>
+		</Menu>
 
 		<!--
 		<TabControl Name="tabControl">
         </TabControl>-->
 		<local:BrowserView Name="browser"/>
-    </DockPanel>
+	</DockPanel>
 </Window>

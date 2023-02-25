@@ -12,12 +12,12 @@ namespace Ornate.Lite
             // If urn:schemas-microsoft-com:compatibility.v1 supportedOS exists in the app.manifest file, the control will not display normally, but it is normal in WPF
             if (IsProgramInCompatibilityMode())
             {
-                //TODO: alert the use
+                //TODO: alert the user
                 Console.WriteLine("Windows Program Compatibility mode is on. Turn it off and then try again");
                 return;
             }
 
-            BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
+            BuildAvaloniaApp().StartWithClassicDesktopLifetime(args, Avalonia.Controls.ShutdownMode.OnMainWindowClose);
         }
 
         static bool IsProgramInCompatibilityMode()

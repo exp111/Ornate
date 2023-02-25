@@ -4,18 +4,24 @@ using Avalonia.VisualTree;
 using Microsoft.Web.WebView2.Core;
 using Microsoft.Web.WebView2.Core.DevToolsProtocolExtension;
 using Ornate.Lite.Dialogs;
+using Ornate.Lite.WebView;
 using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace Ornate.Lite
 {
     public class BrowserView : UserControl
     {
-        private DevToolsProtocolHelper DevTools;
-        private WebView2 browser;
+        public DevToolsProtocolHelper DevTools;
+        public WebView2 browser;
         private TextBlock infoLabel;
         public static readonly string DataPath = "data";
         public static readonly string BundlePath = Path.Combine(DataPath, "bundle.html"); // Uses the relative path
+
+        public event EventHandler<BrowserInitArgs> OnBrowserInit;
+
+        public Sniffer sniffer;
 
         public BrowserView()
         {
@@ -40,8 +46,15 @@ namespace Ornate.Lite
 
         private void Init()
         {
+            //TODO: handle exception
             DevTools = browser.CoreWebView2?.GetDevToolsProtocolHelper();
+            sniffer = new(DevTools);
+            sniffer.Start(); //TODO: sniffer toggle
+
+            browser.CoreWebView2.Settings.UserAgent = "Mozilla/5.0 (iPhone; CPU iPhone OS 16_3_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148"; //TODO: change to android?
             OpenGame();
+
+            OnBrowserInit?.Invoke(this, new BrowserInitArgs(browser));
         }
 
         // Checks if the game data exists (or at least the start file)

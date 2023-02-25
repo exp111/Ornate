@@ -18,6 +18,8 @@ namespace Ornate.Lite
 {
     public class MainWindow : Window
     {
+        private BrowserView ActiveBrowserView;
+        private SnifferWindow Sniffer; //TODO: start sniffer with main window
         public MainWindow()
         {
             InitializeComponent();
@@ -28,20 +30,7 @@ namespace Ornate.Lite
             AvaloniaXamlLoader.Load(this);
 
             CreateBrowserView();
-
-            var mainMenu = this.FindControl<Menu>("mainMenu");
-            mainMenu.AttachedToVisualTree += MenuAttached;
         }
-
-        private void MenuAttached(object sender, VisualTreeAttachmentEventArgs e)
-        {
-            if (NativeMenu.GetIsNativeMenuExported(this) && sender is Menu mainMenu)
-            {
-                mainMenu.IsVisible = false;
-            }
-        }
-
-        private BrowserView ActiveBrowserView;
 
         private void CreateBrowserView()
         {
@@ -206,6 +195,19 @@ namespace Ornate.Lite
         {
             //TODO: mute checkbox
             ActiveBrowserView.Mute(true);
+        }
+
+        //TODO: options window, auto sniffer attach, auto game start, mute sounds etc
+        //TODO: gps window/sidebar
+
+        private async void OnSnifferMenuItemClick(object sender, RoutedEventArgs e)
+        {
+            if (Sniffer == null)
+                Sniffer = new SnifferWindow();
+            else if (Sniffer.IsVisible) //TODO: close?
+                return;
+
+            Sniffer.Show();
         }
     }
 }
