@@ -2,9 +2,28 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-        x:Class="Ornate.Lite.SnifferWindow"
+        mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="300"
+		x:Class="Ornate.Lite.SnifferWindow"
 		WindowStartupLocation="CenterOwner"
         Title="Sniffer">
-  Welcome to Avalonia!
+  <Grid ColumnDefinitions="*,*">
+	  <Grid Grid.Column="0">
+		  <Label VerticalAlignment="Top" HorizontalAlignment="Left">Requests</Label>
+		  <ListBox Margin="5,25,5,0">
+			  <ListBoxItem>1</ListBoxItem>
+			  <ListBoxItem>2</ListBoxItem>
+			  <ListBoxItem>3</ListBoxItem>
+		  </ListBox>
+	  </Grid>
+	  <Grid Grid.Column="1" RowDefinitions="*,*">
+		  <Grid Grid.Row="0">
+			  <Label>Request</Label>
+			  <TextBlock Margin="5,25,5,0">Content</TextBlock>
+		  </Grid>
+		  <Grid Grid.Row="1">
+			  <Label>Response</Label>
+			  <TextBlock Margin="5,25,5,0">Content</TextBlock>
+		  </Grid>
+	  </Grid>
+  </Grid>
 </Window>

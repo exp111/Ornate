@@ -2,8 +2,9 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
-using Ornate.Lite.WebView;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Ornate.Lite
 {
@@ -22,6 +23,9 @@ namespace Ornate.Lite
         {
             AvaloniaXamlLoader.Load(this);
 
+            if (Design.IsDesignMode)
+                return;
+
             var lifetime = (IClassicDesktopStyleApplicationLifetime)Application.Current.ApplicationLifetime;
             var mainWindow = lifetime.MainWindow;
             if (mainWindow == null) //TODO: null if called from mainwindow constructor
@@ -30,10 +34,16 @@ namespace Ornate.Lite
             Browser = BrowserView.browser;
             Sniffer = BrowserView.sniffer;
             var messages = Sniffer.Messages;
-            var first = messages.First(m => m.Value.Request.Url.StartsWith("https://playorna.com/"));
+            var first = messages.FirstOrDefault(m => m.Value.Request.Url.StartsWith("https://playorna.com/"));
+            if (first.Key == null)
+                return;
+            var id = first.Key;
             var req = first.Value.Request;
             var resp = first.Value.Response;
-            var b = resp;
+            Task<string> post = null;
+            if (req.HasPostData != null)
+                post = BrowserView.DevTools.Network.GetRequestPostDataAsync(id);
+            var body = BrowserView.DevTools.Network.GetResponseBodyAsync(id);
         }
     }
 }
