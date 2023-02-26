@@ -4,7 +4,6 @@
 		x:Class="Ornate.Lite.BrowserView">
 
     <DockPanel>
-        <!--<TextBox x:Name="addressTextBox" DockPanel.Dock="Top" KeyDown="OnAddressTextBoxKeyDown" />-->
 		<Grid>
 			<TextBlock
 				x:Name="InfoLabel"

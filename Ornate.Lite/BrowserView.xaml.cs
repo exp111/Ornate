@@ -25,7 +25,15 @@ namespace Ornate.Lite
 
         public BrowserView()
         {
+            InitializeComponent();
+        }
+
+        private void InitializeComponent()
+        {
             AvaloniaXamlLoader.Load(this);
+
+            if (Design.IsDesignMode)
+                return;
 
             browser = this.FindControl<WebView2>("WebView");
             browser.CoreWebView2InitializationCompleted += (_, _) => Init();
@@ -40,7 +48,7 @@ namespace Ornate.Lite
             }
             else
             {
-                browser.DOMContentLoaded += (_,_) => browser.IsVisible = true; ;
+                browser.DOMContentLoaded += (_, _) => browser.IsVisible = true; ;
             }
         }
 

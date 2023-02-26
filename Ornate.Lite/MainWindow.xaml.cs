@@ -29,6 +29,9 @@ namespace Ornate.Lite
         {
             AvaloniaXamlLoader.Load(this);
 
+            if (Design.IsDesignMode)
+                return;
+
             CreateBrowserView();
         }
 
