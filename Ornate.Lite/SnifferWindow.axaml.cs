@@ -47,7 +47,7 @@ namespace Ornate.Lite
             Browser = BrowserView.browser;
             Sniffer = BrowserView.sniffer;
 
-            // Fill message list with messages //TODO: autorefresh or refresh button
+            // Fill message list with messages //TODO: autorefresh or refresh button //TODO: filter out stuff like local calls or bugsnag
             var messages = Sniffer.Messages;
             var items = new List<ListBoxItem>();
             foreach (var message in messages)
@@ -69,20 +69,42 @@ namespace Ornate.Lite
             var req = message.Request;
             var resp = message.Response;
 
-            RequestText.Text = $"{req.Method} {req.Url}";
+            // Get and set request body
+            var reqText = $"{req.Method} {req.Url}";
 
-            //TODO: post
-            // if (req.HasPostData != null)
-            //var post = await BrowserView.DevTools.Network.GetRequestPostDataAsync(text);
-            var body = "";
-            try
+            // post data, if it exists
+            if (req.HasPostData != null)
             {
-                var result = await BrowserView.DevTools.Network.GetResponseBodyAsync(text);
-                body = result.Body;
+                reqText += "\n";
+                try
+                {
+                    var post = await BrowserView.DevTools.Network.GetRequestPostDataAsync(text);
+                    reqText += post;
+                } 
+                catch (Exception ex) 
+                {
+                    reqText += $"Exception: {ex.Message}";
+                }
             }
-            catch (Exception ex)
+            RequestText.Text = reqText;
+
+            // Get and set response body
+            var body = "";
+            if (resp == null)
             {
-                body += ex.Message;
+                body = "No Response received";
+            }
+            else
+            {
+                try
+                {
+                    var result = await BrowserView.DevTools.Network.GetResponseBodyAsync(text);
+                    body = result.Body;
+                }
+                catch (Exception ex)
+                {
+                    body += $"Exception: {ex.Message}";
+                }
             }
             ResponseText.Text = body;
         }

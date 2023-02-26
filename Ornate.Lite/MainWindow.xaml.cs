@@ -209,8 +209,10 @@ namespace Ornate.Lite
                 Sniffer = new SnifferWindow();
             else if (Sniffer.IsVisible) //TODO: close?
                 return;
+            else // active but not visible => closed => create new one 
+                Sniffer = new SnifferWindow();
 
-            Sniffer.Show();
+            Sniffer.Show(); //TODO: make this unshitty with a dialog or smth?
         }
     }
 }
