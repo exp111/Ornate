@@ -7,13 +7,13 @@
 		WindowStartupLocation="CenterOwner"
         Title="Sniffer">
 	<Grid RowDefinitions="20,*">
-		<Grid Grid.Row="0" ColumnDefinitions="*,*,*,*,*">
-			<Label Grid.Column="0">Filters:</Label>
-			<CheckBox Grid.Column="1" Click="OnFilterCheckboxClick" IsChecked="{Binding HideLocalRequests}">No local requests</CheckBox>
-			<CheckBox Grid.Column="2" Click="OnFilterCheckboxClick" IsChecked="{Binding ShowOnlyOrnaRequests}">Only game requests</CheckBox>
-			<CheckBox Grid.Column="3" Click="OnFilterCheckboxClick" IsChecked="{Binding HideResourceRequests}">Hide resource requests</CheckBox>
-			<CheckBox Grid.Column="4" Click="OnFilterCheckboxClick" IsChecked="{Binding HideOptionRequests}">Hide OPTIONS requests</CheckBox>
-		</Grid>
+		<StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="5">
+			<Label>Filters:</Label>
+			<CheckBox Click="OnFilterCheckboxClick" IsChecked="{Binding HideLocalRequests}">No local requests</CheckBox>
+			<CheckBox Click="OnFilterCheckboxClick" IsChecked="{Binding ShowOnlyOrnaRequests}">Only game requests</CheckBox>
+			<CheckBox Click="OnFilterCheckboxClick" IsChecked="{Binding HideResourceRequests}">Hide resource requests</CheckBox>
+			<CheckBox Click="OnFilterCheckboxClick" IsChecked="{Binding HideOptionRequests}">Hide OPTIONS requests</CheckBox>
+		</StackPanel>
 	  <Grid Grid.Row="1" ColumnDefinitions="*,*">
 		  <Grid Grid.Column="0">
 			  <Label VerticalAlignment="Top" HorizontalAlignment="Left">Requests</Label>
