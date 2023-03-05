@@ -17,7 +17,7 @@ namespace Ornate.Lite
         public WebView2 browser;
         private TextBlock infoLabel;
         public static readonly string DataPath = "data";
-        public static readonly string BundlePath = Path.Combine(DataPath, "bundle.html"); // Uses the relative path
+        public static readonly string BundlePath = Path.Combine(DataPath, "bundle.html"); // Uses the relative path //TODO: change back to idx when it works?
 
         public event EventHandler<BrowserInitArgs> OnBrowserInit;
 

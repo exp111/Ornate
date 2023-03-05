@@ -165,6 +165,13 @@ namespace Ornate.Lite
             };
             await progressBar.ShowDialog(this);
 
+            // Copy bundle.idx to bundle.html //TODO: remove when idx works
+            var idxPath = Path.Combine(BrowserView.DataPath, "bundle.idx");
+            var htmlPath = Path.Combine(BrowserView.DataPath, "bundle.html");
+            if (Path.Exists(idxPath))
+            {
+                File.Copy(idxPath, htmlPath, true);
+            }
             // show done info
             OKWindow okWindow = new()
             {
