@@ -1,23 +1,16 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
-using Avalonia.Controls.Selection;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.VisualBasic;
-using Microsoft.Web.WebView2.Core.DevToolsProtocolExtension;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 
 namespace Ornate.Lite
 {
-    public class SnifferWindow : Window, INotifyPropertyChanged //TODO: move sniffer func into browser(view), dont open this window on start, instead only show data from sniffer
+    public class SnifferWindow : Window, INotifyPropertyChanged
     {
         public BrowserView BrowserView;
         public WebView2 Browser;
@@ -32,6 +25,8 @@ namespace Ornate.Lite
         private bool hideResourceRequests = false;
         private bool hideOptionsRequests = true;
 
+        public ObservableCollection<ListBoxItem> requests = new();
+
         #region Bindings
         // Needed to notify the view that a property has changed
         public event PropertyChangedEventHandler PropertyChanged;
@@ -39,6 +34,20 @@ namespace Ornate.Lite
         private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        public ObservableCollection<ListBoxItem> Requests
+        {
+            get => requests;
+
+            set
+            {
+                if (value != requests)
+                {
+                    requests = value;
+                    NotifyPropertyChanged();
+                }
+            }
         }
 
         public bool HideLocalRequests
@@ -124,13 +133,15 @@ namespace Ornate.Lite
             Sniffer = BrowserView.sniffer;
 
             // Fill message list with messages //TODO: autorefresh or refresh button 
-            GenerateRequestList(); //TODO: doesnt work
+            GenerateRequestList();
         }
 
-        public void GenerateRequestList()
+        public void GenerateRequestList() //TODO: crashes if you scroll too far in listbox
         {
+            // clear list
+            Requests.Clear();
             var messages = Sniffer.Messages;
-            var items = new List<ListBoxItem>();
+            // then feed our items into it
             foreach (var message in messages)
             {
                 var text = message.Key;
@@ -139,7 +150,7 @@ namespace Ornate.Lite
                 {
                     var uri = new Uri(req.Url);
                     // local file check
-                    if (hideLocalRequests && uri.IsFile)
+                    if (hideLocalRequests && uri.IsFile) //TODO: also hide blob (cache?) requests?
                         continue;
 
                     // host check
@@ -155,9 +166,8 @@ namespace Ornate.Lite
                     text = $"{req.Method} {req.Url}";
                 }
 
-                items.Add(new() { Content = text, Tag = message.Key });
+                Requests.Add(new() { Content = text, Tag = message.Key });
             }
-            RequestList.Items = items;
         }
 
         public void OnFilterCheckboxClick(object sender, RoutedEventArgs e)
