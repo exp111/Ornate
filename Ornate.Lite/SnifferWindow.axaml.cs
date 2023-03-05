@@ -25,7 +25,17 @@ namespace Ornate.Lite
         private bool hideResourceRequests = false;
         private bool hideOptionsRequests = true;
 
-        public ObservableCollection<ListBoxItem> requests = new();
+        public class RequestItem
+        {
+            public string Text;
+            public string Key;
+
+            public override string ToString()
+            {
+                return Text;
+            }
+        }
+        public ObservableCollection<RequestItem> requests = new();
 
         #region Bindings
         // Needed to notify the view that a property has changed
@@ -36,7 +46,7 @@ namespace Ornate.Lite
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        public ObservableCollection<ListBoxItem> Requests
+        public ObservableCollection<RequestItem> Requests
         {
             get => requests;
 
@@ -136,7 +146,7 @@ namespace Ornate.Lite
             GenerateRequestList();
         }
 
-        public void GenerateRequestList() //TODO: crashes if you scroll too far in listbox
+        public void GenerateRequestList()
         {
             // clear list
             Requests.Clear();
@@ -150,8 +160,15 @@ namespace Ornate.Lite
                 {
                     var uri = new Uri(req.Url);
                     // local file check
-                    if (hideLocalRequests && uri.IsFile) //TODO: also hide blob (cache?) requests?
-                        continue;
+                    if (hideLocalRequests)
+                    {
+                        if (uri.IsFile)
+                            continue;
+
+                        if (uri.Scheme.Equals("blob", StringComparison.InvariantCultureIgnoreCase)
+                            || uri.Scheme.Equals("data", StringComparison.InvariantCultureIgnoreCase))
+                            continue;
+                    }
 
                     // host check
                     if (showOnlyOrnaRequests && !uri.Host.Equals("playorna.com"))
@@ -166,7 +183,7 @@ namespace Ornate.Lite
                     text = $"{req.Method} {req.Url}";
                 }
 
-                Requests.Add(new() { Content = text, Tag = message.Key });
+                Requests.Add(new() { Text = text, Key = message.Key });
             }
         }
 
@@ -181,7 +198,7 @@ namespace Ornate.Lite
             var selected = e.AddedItems.Count > 0 ? e.AddedItems[0] : null;
             if (selected == null)
                 return;
-            var text = (string)((ListBoxItem)selected).Tag;
+            var text = ((RequestItem)selected).Key;
             if (!Sniffer.Messages.TryGetValue(text, out var message))
                 return;
 
