@@ -21,7 +21,7 @@ namespace Ornate.Lite
         public TextBlock ResponseText;
 
         private bool hideLocalRequests = true;
-        private bool showOnlyOrnaRequests = false;
+        private bool showOnlyOrnaRequests = true;
         private bool hideResourceRequests = false;
         private bool hideOptionsRequests = true;
 
@@ -171,7 +171,10 @@ namespace Ornate.Lite
                     }
 
                     // host check
-                    if (showOnlyOrnaRequests && !uri.Host.Equals("playorna.com"))
+                    if (showOnlyOrnaRequests && 
+                        (uri.Scheme.Equals(Uri.UriSchemeHttp, StringComparison.InvariantCultureIgnoreCase) 
+                            || uri.Scheme.Equals(Uri.UriSchemeHttps, StringComparison.InvariantCultureIgnoreCase))
+                        && !uri.Host.Equals("playorna.com"))
                         continue;
 
                     // option method check
