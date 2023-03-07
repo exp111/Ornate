@@ -6,6 +6,7 @@ using Avalonia.Markup.Xaml;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Net;
 using System.Runtime.CompilerServices;
 
 namespace Ornate.Lite
@@ -237,10 +238,14 @@ namespace Ornate.Lite
             }
             else
             {
+                var statusName = Enum.GetName((HttpStatusCode)resp.Status);
+                body += $"{resp.Status} {statusName}\n";
+                body += resp.Headers; //TODO: show headers
+                body += "\n\n";
                 try
                 {
                     var result = await BrowserView.DevTools.Network.GetResponseBodyAsync(text);
-                    body = result.Body;
+                    body += result.Body;
                 }
                 catch (Exception ex)
                 {

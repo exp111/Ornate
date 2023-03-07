@@ -14,22 +14,26 @@
 			<CheckBox Click="OnFilterCheckboxClick" IsChecked="{Binding HideResourceRequests}">Hide resource requests</CheckBox>
 			<CheckBox Click="OnFilterCheckboxClick" IsChecked="{Binding HideOptionRequests}">Hide OPTIONS requests</CheckBox>
 		</StackPanel>
-	  <Grid Grid.Row="1" ColumnDefinitions="*,*">
-		  <Grid Grid.Column="0">
-			  <Label VerticalAlignment="Top" HorizontalAlignment="Left">Requests</Label>
-			  <ListBox Margin="5,25,5,0" Items="{Binding Requests}" Name="RequestList" SelectionChanged="OnRequestListSelectionChanged" SelectionMode="Single, AlwaysSelected">
-			  </ListBox>
-		  </Grid>
-		  <Grid Grid.Column="1" RowDefinitions="*,*">
-			  <Grid Grid.Row="0">
-				  <Label>Request</Label>
-				  <TextBlock Margin="5,25,5,0" Name="RequestText" TextWrapping="Wrap">Content</TextBlock>
-			  </Grid>
-			  <Grid Grid.Row="1">
-				  <Label>Response</Label>
-				  <TextBlock Margin="5,25,5,0" Name="ResponseText" TextWrapping="Wrap">Content</TextBlock>
-			  </Grid>
-		  </Grid>
-	  </Grid>
+		<Grid Grid.Row="1" ColumnDefinitions="*,*">
+			<Grid Grid.Column="0">
+				<Label VerticalAlignment="Top" HorizontalAlignment="Left">Requests</Label>
+				<ListBox Margin="5,25,5,0" Items="{Binding Requests}" Name="RequestList" SelectionChanged="OnRequestListSelectionChanged" SelectionMode="Single, AlwaysSelected">
+				</ListBox>
+			</Grid>
+			<Grid Grid.Column="1" RowDefinitions="*,*">
+				<Grid Grid.Row="0">
+					<Label>Request</Label>
+					<ScrollViewer>
+						<TextBlock Margin="5,25,5,0" Name="RequestText" TextWrapping="Wrap">Content</TextBlock>
+					</ScrollViewer>
+				</Grid>
+				<Grid Grid.Row="1">
+					<Label>Response</Label>
+					<ScrollViewer>
+						<TextBlock Margin="5,25,5,0" Name="ResponseText" TextWrapping="Wrap">Content</TextBlock>
+					</ScrollViewer>
+				</Grid>
+			</Grid>
+		</Grid>
 	</Grid>
 </Window>
