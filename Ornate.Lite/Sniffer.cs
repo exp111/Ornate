@@ -1,20 +1,53 @@
 ﻿using Avalonia.Controls;
 using Microsoft.Web.WebView2.Core;
-using Microsoft.Web.WebView2.Core.DevToolsProtocolExtension;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.IO;
 
 namespace Ornate.Lite
 {
     public class Message
     {
         public CoreWebView2WebResourceRequest Request;
+        public string PostData;
         public CoreWebView2WebResourceResponseView Response;
+        public string ResponseData;
 
-        public Message(CoreWebView2WebResourceRequest request, CoreWebView2WebResourceResponseView response) { Request = request; Response = response; }
+        public Message(CoreWebView2WebResourceRequest request, CoreWebView2WebResourceResponseView response) 
+        { 
+            Request = request;
+            Response = response;
+            CacheData();
+        }
+
+        public async void CacheData()
+        {
+            if (Request != null && Request.Content != null) 
+            {
+                using (var sr = new StreamReader(Request.Content))
+                {
+                    var post = sr.ReadToEnd();
+                    PostData = post;
+                }
+            }
+
+            if (Response != null) 
+            {
+                try
+                {
+                    var content = await Response.GetContentAsync(); //FIXME: doesnt get content at some parts. idk why
+                    using (var sr = new StreamReader(content))
+                    {
+                        var data = sr.ReadToEnd();
+                        ResponseData = data;
+                    }
+                }
+                catch (Exception ex) 
+                {
+                    ResponseData = $"Exception : {ex}";
+                }
+            }
+        }
     }
 
     public class Sniffer

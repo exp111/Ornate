@@ -195,7 +195,7 @@ namespace Ornate.Lite
         public void OnFilterCheckboxClick(object sender, RoutedEventArgs e)
         {
             // Regenerate the request list
-            GenerateRequestList();
+            GenerateRequestList(); //TODO: fix scrollviewer overlapping into the Request/Response label
         }
 
         public async void OnRequestListSelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -219,19 +219,7 @@ namespace Ornate.Lite
             if (req.Content != null)
             {
                 reqText += "\n\n";
-                try
-                {
-                    var contentStream = req.Content;
-                    using (var sr = new StreamReader(contentStream)) //TODO: cache somewhere else cause we can only read it once
-                    {
-                        var post = sr.ReadToEnd();
-                        reqText += post;
-                    }
-                } 
-                catch (Exception ex) 
-                {
-                    reqText += $"Exception: {ex.Message}";
-                }
+                reqText += message.PostData;
             }
             RequestText.Text = reqText;
 
@@ -249,19 +237,7 @@ namespace Ornate.Lite
                     respText += $"{header.Key}: {header.Value}\n";
                 respText += "\n\n";
                 // Get the response body
-                try
-                {
-                    var contentStream = await resp.GetContentAsync();
-                    using (var sr = new StreamReader(contentStream)) //TODO: cache somewhere else cause we can only read it once
-                    {
-                        var result = sr.ReadToEnd();
-                        respText += result;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    respText += $"Exception: {ex.Message}";
-                }
+                respText += message.ResponseData;
             }
             ResponseText.Text = respText;
         }
