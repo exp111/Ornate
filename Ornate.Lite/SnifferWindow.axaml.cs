@@ -6,6 +6,7 @@ using Avalonia.Markup.Xaml;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Net;
 using System.Runtime.CompilerServices;
 
@@ -29,7 +30,7 @@ namespace Ornate.Lite
         public class RequestItem
         {
             public string Text;
-            public string Key;
+            public int Key;
 
             public override string ToString()
             {
@@ -155,11 +156,11 @@ namespace Ornate.Lite
             // then feed our items into it
             foreach (var message in messages)
             {
-                var text = message.Key;
+                var text = message.Key.ToString();
                 var req = message.Value.Request;
                 if (req != null)
                 {
-                    var uri = new Uri(req.Url);
+                    var uri = new Uri(req.Uri);
                     // local file check
                     if (hideLocalRequests)
                     {
@@ -184,7 +185,7 @@ namespace Ornate.Lite
 
                     //TODO: resource check //if (hideResourceRequests &&
 
-                    text = $"{req.Method} {req.Url}";
+                    text = $"{req.Method} {req.Uri}";
                 }
 
                 Requests.Add(new() { Text = text, Key = message.Key });
@@ -210,18 +211,22 @@ namespace Ornate.Lite
             var resp = message.Response;
 
             // Get and set request body
-            var reqText = $"{req.Method} {req.Url}";
-            reqText += "\n";
-            reqText += req.Headers.ToString(); //TODO: get headers
+            var reqText = $"{req.Method} {req.Uri}\n";
+            foreach (var header in resp.Headers)
+                reqText += $"{header.Key}: {header.Value}\n";
 
             // post data, if it exists
-            if (req.HasPostData != null)
+            if (req.Content != null)
             {
                 reqText += "\n\n";
                 try
                 {
-                    var post = await BrowserView.DevTools.Network.GetRequestPostDataAsync(text);
-                    reqText += post;
+                    var contentStream = req.Content;
+                    using (var sr = new StreamReader(contentStream)) //TODO: cache somewhere else cause we can only read it once
+                    {
+                        var post = sr.ReadToEnd();
+                        reqText += post;
+                    }
                 } 
                 catch (Exception ex) 
                 {
@@ -231,28 +236,34 @@ namespace Ornate.Lite
             RequestText.Text = reqText;
 
             // Get and set response body
-            var body = "";
+            var respText = "";
             if (resp == null)
             {
-                body = "No Response received";
+                respText = "No Response received";
             }
             else
             {
-                var statusName = Enum.GetName((HttpStatusCode)resp.Status);
-                body += $"{resp.Status} {statusName}\n";
-                body += resp.Headers; //TODO: show headers
-                body += "\n\n";
+                var statusName = Enum.GetName((HttpStatusCode)resp.StatusCode);
+                respText += $"{resp.StatusCode} {statusName}\n";
+                foreach (var header in resp.Headers)
+                    respText += $"{header.Key}: {header.Value}\n";
+                respText += "\n\n";
+                // Get the response body
                 try
                 {
-                    var result = await BrowserView.DevTools.Network.GetResponseBodyAsync(text);
-                    body += result.Body;
+                    var contentStream = await resp.GetContentAsync();
+                    using (var sr = new StreamReader(contentStream)) //TODO: cache somewhere else cause we can only read it once
+                    {
+                        var result = sr.ReadToEnd();
+                        respText += result;
+                    }
                 }
                 catch (Exception ex)
                 {
-                    body += $"Exception: {ex.Message}";
+                    respText += $"Exception: {ex.Message}";
                 }
             }
-            ResponseText.Text = body;
+            ResponseText.Text = respText;
         }
     }
 }

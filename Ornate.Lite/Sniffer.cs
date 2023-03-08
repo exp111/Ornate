@@ -1,4 +1,6 @@
-﻿using Microsoft.Web.WebView2.Core.DevToolsProtocolExtension;
+﻿using Avalonia.Controls;
+using Microsoft.Web.WebView2.Core;
+using Microsoft.Web.WebView2.Core.DevToolsProtocolExtension;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,42 +11,31 @@ namespace Ornate.Lite
 {
     public class Message
     {
-        public Network.Request Request;
-        public Network.Response Response;
+        public CoreWebView2WebResourceRequest Request;
+        public CoreWebView2WebResourceResponseView Response;
 
-        public Message(Network.Request request, Network.Response response) { Request = request; Response = response; }
+        public Message(CoreWebView2WebResourceRequest request, CoreWebView2WebResourceResponseView response) { Request = request; Response = response; }
     }
 
     public class Sniffer
     {
-        private DevToolsProtocolHelper DevTools;
-        public Dictionary<string, Message> Messages = new();
-        public Sniffer(DevToolsProtocolHelper devTools)
+        private WebView2 WebView;
+        public Dictionary<int, Message> Messages = new();
+        public Sniffer(WebView2 webview)
         {
-            DevTools = devTools;
+            WebView = webview;
         }
 
         public void Start()
         {
-            DevTools.Network.EnableAsync();
-            DevTools.Network.RequestWillBeSent += Network_RequestWillBeSent;
-            DevTools.Network.ResponseReceived += Network_ResponseReceived;
+            //TODO: only checks responses, so messages with no response are ignored // WebResourceRequested isn't called
+            WebView.CoreWebView2.WebResourceResponseReceived += ResponseReceived;
         }
 
-        private void Network_RequestWillBeSent(object sender, Network.RequestWillBeSentEventArgs e)
+        private void ResponseReceived(object sender, CoreWebView2WebResourceResponseReceivedEventArgs e)
         {
-            if (Messages.TryGetValue(e.RequestId, out _))
-                return; // request already exists
-
-            Messages[e.RequestId] = new Message(e.Request, null);
-        }
-
-        private void Network_ResponseReceived(object sender, Network.ResponseReceivedEventArgs e)
-        {
-            if (!Messages.TryGetValue(e.RequestId, out var msg))
-                return; // no response for the msg
-
-            msg.Response = e.Response;
+            var id = e.Request.GetHashCode();
+            Messages[id] = new Message(e.Request, e.Response);
         }
     }
 }
