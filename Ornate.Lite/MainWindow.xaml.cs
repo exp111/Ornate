@@ -192,7 +192,20 @@ namespace Ornate.Lite
             if (result == null)
                 return;
 
-            ActiveBrowserView.SetAddress(result);
+            try
+            {
+                ActiveBrowserView.SetAddress(result);
+            } 
+            catch (Exception ex) 
+            {
+                // Show error window
+                OKWindow errorWindow = new()
+                {
+                    Title = "Error",
+                    Prompt = $"Invalid URL: {ex}"
+                };
+                await errorWindow.ShowDialog(this);
+            }
         }
 
         private async void OnDebugMenuItemClick(object sender, RoutedEventArgs e)
