@@ -19,7 +19,7 @@ namespace Ornate.Lite
     public class MainWindow : Window
     {
         private BrowserView ActiveBrowserView;
-        private SnifferWindow Sniffer; //TODO: start sniffer with main window
+        private SnifferWindow Sniffer;
         public MainWindow()
         {
             InitializeComponent();

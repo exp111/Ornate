@@ -56,7 +56,7 @@ namespace Ornate.Lite
         {
             //TODO: handle exception
             DevTools = browser.CoreWebView2?.GetDevToolsProtocolHelper();
-            sniffer = new(browser);
+            sniffer = new(browser, DevTools);
             sniffer.Start(); //TODO: sniffer toggle
 
             browser.CoreWebView2.Settings.UserAgent = "Mozilla/5.0 (iPhone; CPU iPhone OS 16_3_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148"; //TODO: change to android?
