@@ -8,6 +8,7 @@ namespace Ornate.Lite
 {
     public class Message
     {
+        private static readonly object CacheLock = new();
         public CoreWebView2WebResourceRequest Request;
         public string PostData;
         public CoreWebView2WebResourceResponseView Response;
@@ -17,7 +18,10 @@ namespace Ornate.Lite
         { 
             Request = request;
             Response = response;
-            CacheData();
+            lock (CacheLock)
+            {
+                CacheData();
+            }
         }
 
         public async void CacheData()

@@ -50,7 +50,7 @@
     <PackageReference Include="Avalonia.Desktop" Version="0.10.18" />
     <PackageReference Include="Avalonia.Diagnostics" Version="0.10.18" />
     <PackageReference Include="Microsoft.Web.WebView2.DevToolsProtocolExtension" Version="1.0.824" />
-    <PackageReference Include="WebView2.Avalonia" Version="1.0.1264.42-preview.220713.10" />
+    <PackageReference Include="WebView2.Avalonia" Version="1.0.1518.46-preview.230207.17" />
   </ItemGroup>
 
   <ItemGroup>
