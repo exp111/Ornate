@@ -25,9 +25,11 @@ namespace Ornate.Lite
         public TextBlock ParsedResponseText;
 
         // Socket Tab
-        public TextBlock ConnectionText;
+        public TextBlock SocketRequestText;
+        public TextBlock SocketResponseText;
         public TextBlock FrameText;
         public TextBlock FrameParsedText;
+        public ListBox SocketList;
 
         private bool hideLocalRequests = true;
         private bool showOnlyOrnaRequests = true;
@@ -37,7 +39,7 @@ namespace Ornate.Lite
         public class RequestItem
         {
             public string Text;
-            public int Key;
+            public object Key; //TODO: make this either int or string :weary:
 
             public override string ToString()
             {
@@ -161,7 +163,7 @@ namespace Ornate.Lite
             InitializeComponent();
         }
 
-        private void InitializeComponent()
+        private void InitializeComponent() //TODO: clear button
         {
             AvaloniaXamlLoader.Load(this);
             DataContext = this;
@@ -178,9 +180,11 @@ namespace Ornate.Lite
             ParsedRequestText = this.FindControl<TextBlock>("ParsedRequestText");
             ParsedResponseText = this.FindControl<TextBlock>("ParsedResponseText");
 
-            ConnectionText = this.FindControl<TextBlock>("ConnectionText");
+            SocketRequestText = this.FindControl<TextBlock>("SocketRequestText");
+            SocketResponseText = this.FindControl<TextBlock>("SocketResponseText");
             FrameText = this.FindControl<TextBlock>("FrameText");
             FrameParsedText = this.FindControl<TextBlock>("FrameParsedText");
+            SocketList = this.FindControl<ListBox>("SocketList");
 
             var lifetime = (IClassicDesktopStyleApplicationLifetime)Application.Current.ApplicationLifetime;
             var mainWindow = lifetime.MainWindow;
@@ -192,6 +196,7 @@ namespace Ornate.Lite
 
             // Fill message list with messages //TODO: autorefresh or refresh button 
             GenerateRequestList();
+            GenerateSocketList();
         }
 
         public void GenerateRequestList()
@@ -238,6 +243,42 @@ namespace Ornate.Lite
             }
         }
 
+        public void GenerateSocketList() //TODO: refresh button
+        {
+            // clear list
+            Sockets.Clear();
+            var sockets = Sniffer.WebSockets;
+            // then feed our items into it
+            foreach (var socket in sockets)
+            {
+                var text = socket.Key.ToString();
+                var con = socket.Value;
+                if (con != null)
+                {
+                    text = $"GET {con.URL}";
+                }
+
+                Sockets.Add(new() { Text = text, Key = socket.Key });
+            }
+        }
+
+        public void GenerateFramesList(string socketID) //TODO: refresh button
+        {
+            // clear list
+            Frames.Clear();
+            if (!Sniffer.WebSockets.TryGetValue(socketID, out var socket))
+                return;
+            var frames = socket.Messages;
+            // then feed our items into it
+            for (var i = 0; i < frames.Count; i++)
+            {
+                var frame = frames[i];
+                var text = $"{frame.Opcode} {frame.PayloadData}";
+
+                Frames.Add(new() { Text = text, Key = i });
+            }
+        }
+
         public void OnFilterCheckboxClick(object sender, RoutedEventArgs e)
         {
             if (Design.IsDesignMode)
@@ -255,8 +296,8 @@ namespace Ornate.Lite
             var selected = e.AddedItems.Count > 0 ? e.AddedItems[0] : null;
             if (selected == null)
                 return;
-            var text = ((RequestItem)selected).Key;
-            if (!Sniffer.Messages.TryGetValue(text, out var message))
+            var requestHash = (int)((RequestItem)selected).Key;
+            if (!Sniffer.Messages.TryGetValue(requestHash, out var message))
                 return;
 
             var req = message.Request;
@@ -303,7 +344,25 @@ namespace Ornate.Lite
             if (Design.IsDesignMode)
                 return;
 
-            //TODO: socketlist
+            var selected = e.AddedItems.Count > 0 ? e.AddedItems[0] : null;
+            if (selected == null)
+                return;
+            var socketID = (string)((RequestItem)selected).Key;
+            if (!Sniffer.WebSockets.TryGetValue(socketID, out var socket))
+                return;
+
+            var reqText = $"GET {socket.URL}";
+            if (socket.Response != null)
+                reqText = $"{socket.Response.RequestHeadersText}"; // headers are saved in response for some reason
+            SocketRequestText.Text = reqText;
+
+            var respText = "";
+            if (socket.Response != null)
+            {
+                respText += socket.Response.HeadersText;
+            }
+            SocketResponseText.Text = respText;
+            GenerateFramesList(socketID);
         }
         
         public async void OnFramesListSelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -311,7 +370,33 @@ namespace Ornate.Lite
             if (Design.IsDesignMode)
                 return;
 
-            //TODO: frameslist
+            var selected = e.AddedItems.Count > 0 ? e.AddedItems[0] : null;
+            if (selected == null)
+                return;
+
+            var selectedSocket = (RequestItem)SocketList.SelectedItem;
+            var socketID = (string)selectedSocket.Key;
+            if (!Sniffer.WebSockets.TryGetValue(socketID, out var socket))
+                return;
+
+            try
+            {
+                var index = (int)((RequestItem)selected).Key;
+                if (index > socket.Messages.Count)
+                {
+                    throw new IndexOutOfRangeException("Frame index out of range");
+                }
+
+                var msg = socket.Messages[index];
+                var reqText = $"Opcode: {msg.Opcode}\nPayloadData:\n{msg.PayloadData}"; //TODO: do we need to care about masking?
+                FrameText.Text = reqText;
+            }
+            catch (Exception ex)
+            {
+                FrameText.Text = $"Exception: {ex}";
+            }
+
+            //TODO: parse msg
         }
     }
 }

@@ -61,6 +61,8 @@ namespace Ornate.Lite
     {
         public List<Network.WebSocketFrame> Messages = new();
         public string URL;
+        // Request isn't really necessary, as it only contains Headers, which aren't useful for us rn (cause they're empty) //TODO: also save those if fixed
+        public Network.WebSocketResponse Response; // Response contains HeadersTest and RequestHeadersText
 
         public WebSocketConnection(string url)
         {
@@ -73,7 +75,7 @@ namespace Ornate.Lite
         private WebView2 WebView;
         private DevToolsProtocolHelper DevTools;
         public Dictionary<int, Message> Messages = new();
-        public Dictionary<string, WebSocketConnection> WebSocketMessages = new();
+        public Dictionary<string, WebSocketConnection> WebSockets = new();
         public Sniffer(WebView2 webview, DevToolsProtocolHelper devTools)
         {
             WebView = webview;
@@ -88,11 +90,20 @@ namespace Ornate.Lite
             DevTools.Network.WebSocketCreated += Network_WebSocketCreated;
             DevTools.Network.WebSocketFrameSent += Network_WebSocketFrameSent;
             DevTools.Network.WebSocketFrameReceived += Network_WebSocketFrameReceived;
+            DevTools.Network.WebSocketHandshakeResponseReceived += Network_WebSocketHandshakeResponseReceived;
+        }
+
+        private void Network_WebSocketHandshakeResponseReceived(object sender, Network.WebSocketHandshakeResponseReceivedEventArgs e)
+        {
+            if (!WebSockets.TryGetValue(e.RequestId, out var socket))
+                return;
+
+            socket.Response = e.Response;
         }
 
         private void Network_WebSocketFrameReceived(object sender, Network.WebSocketFrameReceivedEventArgs e)
         {
-            if (!WebSocketMessages.TryGetValue(e.RequestId, out var socket))
+            if (!WebSockets.TryGetValue(e.RequestId, out var socket))
                 return;
 
             socket.Messages.Add(e.Response);
@@ -100,7 +111,7 @@ namespace Ornate.Lite
 
         private void Network_WebSocketFrameSent(object sender, Network.WebSocketFrameSentEventArgs e)
         {
-            if (!WebSocketMessages.TryGetValue(e.RequestId, out var socket))
+            if (!WebSockets.TryGetValue(e.RequestId, out var socket))
                 return;
 
             socket.Messages.Add(e.Response);
@@ -108,10 +119,10 @@ namespace Ornate.Lite
 
         private void Network_WebSocketCreated(object sender, Network.WebSocketCreatedEventArgs e)
         {
-            if (WebSocketMessages.TryGetValue(e.RequestId, out _))
+            if (WebSockets.TryGetValue(e.RequestId, out _))
                 return;
 
-            WebSocketMessages[e.RequestId] = new(e.Url);
+            WebSockets[e.RequestId] = new(e.Url);
         }
 
         private void ResponseReceived(object sender, CoreWebView2WebResourceResponseReceivedEventArgs e)

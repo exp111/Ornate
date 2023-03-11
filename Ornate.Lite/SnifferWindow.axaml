@@ -57,7 +57,7 @@
 		</TabItem>
 		<TabItem Header="Websocket">
 			<Grid ColumnDefinitions="*,*,*">
-				<Grid Grid.Column="0" RowDefinitions="*,*">
+				<Grid Grid.Column="0" RowDefinitions="*,*,*">
 					<Grid Grid.Row="0">
 						<Label VerticalAlignment="Top" HorizontalAlignment="Left">Sockets</Label>
 						<ListBox Margin="5,25,5,0" Items="{Binding Sockets}" Name="SocketList" SelectionChanged="OnSocketListSelectionChanged" SelectionMode="Single, AlwaysSelected">
@@ -66,7 +66,13 @@
 					<Grid Grid.Row="1">
 						<Label>Request</Label>
 						<ScrollViewer>
-							<TextBlock Margin="5,25,5,0" Name="ConnectionRequestText" TextWrapping="Wrap">Content</TextBlock>
+							<TextBlock Margin="5,25,5,0" Name="SocketRequestText" TextWrapping="Wrap">Content</TextBlock>
+						</ScrollViewer>
+					</Grid>
+					<Grid Grid.Row="2">
+						<Label>Response</Label>
+						<ScrollViewer>
+							<TextBlock Margin="5,25,5,0" Name="SocketResponseText" TextWrapping="Wrap">Content</TextBlock>
 						</ScrollViewer>
 					</Grid>
 				</Grid>
