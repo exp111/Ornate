@@ -18,9 +18,16 @@ namespace Ornate.Lite
         public WebView2 Browser;
         public Sniffer Sniffer;
 
-        public ListBox RequestList;
+        //TODO: as we only need to change the text, we can bind their values to a property of ours
         public TextBlock RequestText;
         public TextBlock ResponseText;
+        public TextBlock ParsedRequestText;
+        public TextBlock ParsedResponseText;
+
+        // Socket Tab
+        public TextBlock ConnectionText;
+        public TextBlock FrameText;
+        public TextBlock FrameParsedText;
 
         private bool hideLocalRequests = true;
         private bool showOnlyOrnaRequests = true;
@@ -38,6 +45,8 @@ namespace Ornate.Lite
             }
         }
         public ObservableCollection<RequestItem> requests = new();
+        public ObservableCollection<RequestItem> sockets = new();
+        public ObservableCollection<RequestItem> frames = new(); //TODO: use class that also contains Connection id?
 
         #region Bindings
         // Needed to notify the view that a property has changed
@@ -57,6 +66,34 @@ namespace Ornate.Lite
                 if (value != requests)
                 {
                     requests = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+
+        public ObservableCollection<RequestItem> Sockets
+        {
+            get => sockets;
+
+            set
+            {
+                if (value != sockets)
+                {
+                    sockets = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+        
+        public ObservableCollection<RequestItem> Frames
+        {
+            get => frames;
+
+            set
+            {
+                if (value != frames)
+                {
+                    frames = value;
                     NotifyPropertyChanged();
                 }
             }
@@ -132,9 +169,18 @@ namespace Ornate.Lite
             if (Design.IsDesignMode)
                 return;
 
-            RequestList = this.FindControl<ListBox>("RequestList");
+#if DEBUG
+            this.AttachDevTools();
+#endif
+
             RequestText = this.FindControl<TextBlock>("RequestText");
             ResponseText = this.FindControl<TextBlock>("ResponseText");
+            ParsedRequestText = this.FindControl<TextBlock>("ParsedRequestText");
+            ParsedResponseText = this.FindControl<TextBlock>("ParsedResponseText");
+
+            ConnectionText = this.FindControl<TextBlock>("ConnectionText");
+            FrameText = this.FindControl<TextBlock>("FrameText");
+            FrameParsedText = this.FindControl<TextBlock>("FrameParsedText");
 
             var lifetime = (IClassicDesktopStyleApplicationLifetime)Application.Current.ApplicationLifetime;
             var mainWindow = lifetime.MainWindow;
@@ -194,12 +240,18 @@ namespace Ornate.Lite
 
         public void OnFilterCheckboxClick(object sender, RoutedEventArgs e)
         {
+            if (Design.IsDesignMode)
+                return;
+
             // Regenerate the request list
             GenerateRequestList(); //TODO: fix scrollviewer overlapping into the Request/Response label
         }
 
         public async void OnRequestListSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            if (Design.IsDesignMode)
+                return;
+
             var selected = e.AddedItems.Count > 0 ? e.AddedItems[0] : null;
             if (selected == null)
                 return;
@@ -223,6 +275,8 @@ namespace Ornate.Lite
             }
             RequestText.Text = reqText;
 
+            //TODO: parse request
+
             // Get and set response body
             var respText = "";
             if (resp == null)
@@ -240,6 +294,24 @@ namespace Ornate.Lite
                 respText += message.ResponseData;
             }
             ResponseText.Text = respText;
+
+            //TODO: parse response
+        }
+
+        public async void OnSocketListSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (Design.IsDesignMode)
+                return;
+
+            //TODO: socketlist
+        }
+        
+        public async void OnFramesListSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (Design.IsDesignMode)
+                return;
+
+            //TODO: frameslist
         }
     }
 }

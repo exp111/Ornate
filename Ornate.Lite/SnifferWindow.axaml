@@ -2,38 +2,94 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="300"
+		xmlns:dd="clr-namespace:Ornate.Lite;assembly=Ornate.Lite"
+        mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="500"
+		d:DataContext="{x:Static dd:DesignData.SnifferWindow}"
 		x:Class="Ornate.Lite.SnifferWindow"
 		WindowStartupLocation="CenterOwner"
         Title="Sniffer">
-	<Grid RowDefinitions="20,*">
-		<StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="5">
-			<Label>Filters:</Label>
-			<CheckBox Click="OnFilterCheckboxClick" IsChecked="{Binding HideLocalRequests}">No local requests</CheckBox>
-			<CheckBox Click="OnFilterCheckboxClick" IsChecked="{Binding ShowOnlyOrnaRequests}">Only game requests</CheckBox>
-			<CheckBox Click="OnFilterCheckboxClick" IsChecked="{Binding HideResourceRequests}">Hide resource requests</CheckBox>
-			<CheckBox Click="OnFilterCheckboxClick" IsChecked="{Binding HideOptionRequests}">Hide OPTIONS requests</CheckBox>
-		</StackPanel>
-		<Grid Grid.Row="1" ColumnDefinitions="*,*">
-			<Grid Grid.Column="0">
-				<Label VerticalAlignment="Top" HorizontalAlignment="Left">Requests</Label>
-				<ListBox Margin="5,25,5,0" Items="{Binding Requests}" Name="RequestList" SelectionChanged="OnRequestListSelectionChanged" SelectionMode="Single, AlwaysSelected">
-				</ListBox>
-			</Grid>
-			<Grid Grid.Column="1" RowDefinitions="*,*">
-				<Grid Grid.Row="0">
-					<Label>Request</Label>
-					<ScrollViewer>
-						<TextBlock Margin="5,25,5,0" Name="RequestText" TextWrapping="Wrap">Content</TextBlock>
-					</ScrollViewer>
+	<TabControl>
+		<TabItem Header="Requests">
+			<Grid RowDefinitions="20,*">
+				<StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="5">
+					<Label>Filters:</Label>
+					<CheckBox Click="OnFilterCheckboxClick" IsChecked="{Binding HideLocalRequests}">No local requests</CheckBox>
+					<CheckBox Click="OnFilterCheckboxClick" IsChecked="{Binding ShowOnlyOrnaRequests}">Only game requests</CheckBox>
+					<CheckBox Click="OnFilterCheckboxClick" IsChecked="{Binding HideResourceRequests}">Hide resource requests</CheckBox>
+					<CheckBox Click="OnFilterCheckboxClick" IsChecked="{Binding HideOptionRequests}">Hide OPTIONS requests</CheckBox>
+				</StackPanel>
+				<Grid Grid.Row="1" ColumnDefinitions="*,*,*">
+					<Grid Grid.Column="0">
+						<Label VerticalAlignment="Top" HorizontalAlignment="Left">Requests</Label>
+						<ListBox Margin="5,25,5,0" Items="{Binding Requests}" Name="RequestList" SelectionChanged="OnRequestListSelectionChanged" SelectionMode="Single, AlwaysSelected">
+						</ListBox>
+					</Grid>
+					<Grid Grid.Column="1" RowDefinitions="*,*">
+						<Grid Grid.Row="0">
+							<Label>Request</Label>
+							<ScrollViewer>
+								<TextBlock Margin="5,25,5,0" Name="RequestText" TextWrapping="Wrap">Content</TextBlock>
+							</ScrollViewer>
+						</Grid>
+						<Grid Grid.Row="1">
+							<Label>Response</Label>
+							<ScrollViewer>
+								<TextBlock Margin="5,25,5,0" Name="ResponseText" TextWrapping="Wrap">Content</TextBlock>
+							</ScrollViewer>
+						</Grid>
+					</Grid>
+					<Grid Grid.Column="2" RowDefinitions="*,*">
+						<Grid Grid.Row="0">
+							<Label>Parsed Request</Label>
+							<ScrollViewer>
+								<TextBlock Margin="5,25,5,0" Name="ParsedRequestText" TextWrapping="Wrap">Content</TextBlock>
+							</ScrollViewer>
+						</Grid>
+						<Grid Grid.Row="1">
+							<Label>Parsed Response</Label>
+							<ScrollViewer>
+								<TextBlock Margin="5,25,5,0" Name="ParsedResponseText" TextWrapping="Wrap">Content</TextBlock>
+							</ScrollViewer>
+						</Grid>
+					</Grid>
 				</Grid>
-				<Grid Grid.Row="1">
-					<Label>Response</Label>
-					<ScrollViewer>
-						<TextBlock Margin="5,25,5,0" Name="ResponseText" TextWrapping="Wrap">Content</TextBlock>
-					</ScrollViewer>
+			</Grid>
+		</TabItem>
+		<TabItem Header="Websocket">
+			<Grid ColumnDefinitions="*,*,*">
+				<Grid Grid.Column="0" RowDefinitions="*,*">
+					<Grid Grid.Row="0">
+						<Label VerticalAlignment="Top" HorizontalAlignment="Left">Sockets</Label>
+						<ListBox Margin="5,25,5,0" Items="{Binding Sockets}" Name="SocketList" SelectionChanged="OnSocketListSelectionChanged" SelectionMode="Single, AlwaysSelected">
+						</ListBox>
+					</Grid>
+					<Grid Grid.Row="1">
+						<Label>Request</Label>
+						<ScrollViewer>
+							<TextBlock Margin="5,25,5,0" Name="ConnectionRequestText" TextWrapping="Wrap">Content</TextBlock>
+						</ScrollViewer>
+					</Grid>
+				</Grid>
+				<Grid Grid.Column="1">
+					<Label VerticalAlignment="Top" HorizontalAlignment="Left">Messages</Label>
+					<ListBox Margin="5,25,5,0" Items="{Binding Frames}" Name="FramesList" SelectionChanged="OnFramesListSelectionChanged" SelectionMode="Single, AlwaysSelected">
+					</ListBox>
+				</Grid>
+				<Grid Grid.Column="2" RowDefinitions="*,*">
+					<Grid Grid.Row="0">
+						<Label>Message</Label>
+						<ScrollViewer>
+							<TextBlock Margin="5,25,5,0" Name="FrameText" TextWrapping="Wrap">Content</TextBlock>
+						</ScrollViewer>
+					</Grid>
+					<Grid Grid.Row="1">
+						<Label>Parsed Message</Label>
+						<ScrollViewer>
+							<TextBlock Margin="5,25,5,0" Name="FrameParsedText" TextWrapping="Wrap">Content</TextBlock>
+						</ScrollViewer>
+					</Grid>
 				</Grid>
 			</Grid>
-		</Grid>
-	</Grid>
+		</TabItem>
+	</TabControl>
 </Window>
