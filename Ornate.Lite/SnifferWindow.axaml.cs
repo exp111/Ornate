@@ -3,12 +3,17 @@ using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
+using Ornate.Lite.Messages;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Net;
+using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.Web;
 
 namespace Ornate.Lite
 {
@@ -86,7 +91,7 @@ namespace Ornate.Lite
                 }
             }
         }
-        
+
         public ObservableCollection<RequestItem> Frames
         {
             get => frames;
@@ -224,8 +229,8 @@ namespace Ornate.Lite
                     }
 
                     // host check
-                    if (showOnlyOrnaRequests && 
-                        (uri.Scheme.Equals(Uri.UriSchemeHttp, StringComparison.InvariantCultureIgnoreCase) 
+                    if (showOnlyOrnaRequests &&
+                        (uri.Scheme.Equals(Uri.UriSchemeHttp, StringComparison.InvariantCultureIgnoreCase)
                             || uri.Scheme.Equals(Uri.UriSchemeHttps, StringComparison.InvariantCultureIgnoreCase))
                         && !uri.Host.Equals("playorna.com"))
                         continue;
@@ -303,6 +308,9 @@ namespace Ornate.Lite
             var req = message.Request;
             var resp = message.Response;
 
+            var uri = new Uri(message.Request.Uri);
+            var localPath = uri.LocalPath;
+
             // Get and set request body
             var reqText = $"{req.Method} {req.Uri}\n";
             foreach (var header in resp.Headers)
@@ -316,7 +324,13 @@ namespace Ornate.Lite
             }
             RequestText.Text = reqText;
 
-            //TODO: parse request
+            // parse request
+            var parsedReqText = "Not Implemented";
+            if (MessageHelper.TryGetRequest(uri, message.PostData, out var parsed))
+                parsedReqText = parsed.ToString();
+            //TODO: else make it generic
+            //TODO: make this dynamic treeview
+            ParsedRequestText.Text = parsedReqText;
 
             // Get and set response body
             var respText = "";
@@ -336,7 +350,15 @@ namespace Ornate.Lite
             }
             ResponseText.Text = respText;
 
-            //TODO: parse response
+            // parse response //TODO: move into func?
+            {
+                var parsedRespText = "Not Implemented";
+                if (MessageHelper.TryGetResponse(uri, message.ResponseData, out var parsedResponse))
+                    parsedRespText = parsedResponse.ToString();
+                //TODO: else make it generic
+                //TODO: make this dynamic treeview
+                ParsedResponseText.Text = parsedRespText;
+            }
         }
 
         public async void OnSocketListSelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -364,7 +386,7 @@ namespace Ornate.Lite
             SocketResponseText.Text = respText;
             GenerateFramesList(socketID);
         }
-        
+
         public async void OnFramesListSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (Design.IsDesignMode)
