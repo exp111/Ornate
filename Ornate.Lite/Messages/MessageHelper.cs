@@ -10,7 +10,7 @@ namespace Ornate.Lite.Messages
     public static class MessageHelper
     {
         // Tries to find and parse a request that matches the uri and data
-        public static bool TryGetRequest(Uri uri, string postData, out IRequest message)
+        public static bool TryGetRequest(Uri uri, string postData, out object message)
         {
             message = null;
             try
@@ -70,7 +70,7 @@ namespace Ornate.Lite.Messages
         }
 
         // Tries to find and parse a response that matches the uri and data
-        public static bool TryGetResponse(Uri uri, string data, out IResponse message) 
+        public static bool TryGetResponse(Uri uri, string data, out object message) 
         {
             message = null;
             try

@@ -4,13 +4,14 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Interactivity;
 using Ornate.Lite.Messages;
 using System;
+using System.Collections;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Net;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Web;
 
 namespace Ornate.Lite
 {
@@ -39,24 +40,9 @@ namespace Ornate.Lite
         public ObservableCollection<RequestItem> sockets = new();
         public ObservableCollection<RequestItem> frames = new(); //TODO: use class that also contains Connection id?
 
+        private ObservableCollection<Node> parsedRequestTree = new();
+        private ObservableCollection<Node> parsedResponseTree = new();
         private ObservableCollection<Node> parsedFrameTree = new();
-        public class Node
-        {
-            public ObservableCollection<Node> Nodes { get; set; }
-            public string Text;
-            public object Value;
-
-            public Node(string text, object value = null)
-            {
-                Text = text;
-                Value = value;
-            }
-
-            public override string ToString()
-            {
-                return Value != null ? $"{Text} = {Value}" : Text;
-            }
-        }
 
         #region Bindings
         // Needed to notify the view that a property has changed
@@ -65,6 +51,33 @@ namespace Ornate.Lite
         private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        public ObservableCollection<Node> ParsedRequestTree
+        {
+            get => parsedRequestTree;
+
+            set
+            {
+                if (value != parsedRequestTree)
+                {
+                    parsedRequestTree = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+        public ObservableCollection<Node> ParsedResponseTree
+        {
+            get => parsedResponseTree;
+
+            set
+            {
+                if (value != parsedResponseTree)
+                {
+                    parsedResponseTree = value;
+                    NotifyPropertyChanged();
+                }
+            }
         }
 
         public ObservableCollection<Node> ParsedFrameTree
@@ -322,12 +335,10 @@ namespace Ornate.Lite
             RequestText.Text = reqText;
 
             // parse request
-            var parsedReqText = "Not Implemented";
-            if (MessageHelper.TryGetRequest(uri, message.PostData, out var parsed))
-                parsedReqText = parsed.ToString();
-            //TODO: else make it generic
-            //TODO: make this dynamic treeview
-            ParsedRequest.Text = parsedReqText;
+            ParsedRequestTree.Clear();
+            if (!MessageHelper.TryGetRequest(uri, message.PostData, out var parsed))
+                parsed = message.PostData != null ? HttpUtility.ParseQueryString(message.PostData) : HttpUtility.ParseQueryString(uri.Query); //FIXME: only shows the param names of the query
+            ParsedRequestTree.Add(BuildNodeTree(parsed));
 
             // Get and set response body
             var respText = "";
@@ -348,12 +359,10 @@ namespace Ornate.Lite
             ResponseText.Text = respText;
 
             // parse response
-            var parsedRespText = "Not Implemented";
-            if (MessageHelper.TryGetResponse(uri, message.ResponseData, out var parsedResponse))
-                parsedRespText = parsedResponse.ToString();
-            //TODO: else make it generic
-            //TODO: make this dynamic treeview
-            ParsedResponse.Text = parsedRespText;
+            ParsedResponseTree.Clear();
+            if (!MessageHelper.TryGetResponse(uri, message.ResponseData, out var parsedResponse))
+                parsedResponse = JsonSerializer.Deserialize<JsonNode>(message.ResponseData);
+            ParsedResponseTree.Add(BuildNodeTree(parsedResponse));
         }
 
         public async void OnSocketListSelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -410,23 +419,94 @@ namespace Ornate.Lite
             //parse msg
             if (!MessageHelper.TryGetMessage(msg.Direction, msg.Frame.PayloadData, out object parsed))
                 parsed = JsonSerializer.Deserialize<JsonNode>(msg.Frame.PayloadData); //TODO: this doesnt work and crashes
-            var baseNode = BuildNodeTree(parsed);
-            ParsedFrameTree.Add(baseNode);
+            ParsedFrameTree.Add(BuildNodeTree(parsed));
             //TODO: expand whole tree
         }
 
-        public Node BuildNodeTree(object obj)
+        public class Node
+        {
+            public ObservableCollection<Node> Nodes { get; set; }
+            public string Text;
+            public object Value;
+
+            public Node(string text, object value = null)
+            {
+                Text = text;
+                Value = value;
+            }
+
+            public override string ToString()
+            {
+                return Value != null ? $"{Text} = {Value}" : Text;
+            }
+        }
+        // Builds a tree from a class by reflecting on it
+        public static Node BuildNodeTree(object obj)
         {
             var type = obj.GetType();
             var baseNode = new Node(type.Name);
-            var cur = baseNode;
+            baseNode.Nodes = new();
 
-            //TODO: make recursive
-            cur.Nodes = new();
-            foreach (var member in type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
+            void BuildTree(Node node, object obj)
             {
-                baseNode.Nodes.Add(new Node(member.Name, member.GetValue(obj)));
+                if (obj == null)
+                {
+                    node.Value = null;
+                    return;
+                }
+
+                var type = obj.GetType();
+                if (typeof(IEnumerable).IsAssignableFrom(type))
+                {
+                    var isEmpty = true;
+                    foreach (var item in (IEnumerable)obj)
+                    {
+                        isEmpty = false;
+                        var itemType = item.GetType();
+                        //TODO: add special case for keyvaluepairs?
+                        if (itemType.IsClass && itemType != typeof(string))
+                        {
+                            var childNode = new Node(itemType.Name);
+                            node.Nodes.Add(childNode);
+                            childNode.Nodes = new();
+                            BuildTree(childNode, item);
+                        }
+                        else
+                        {
+                            var childNode = new Node(itemType.Name, item);
+                            node.Nodes.Add(childNode);
+                        }
+                    }
+                    if (isEmpty)
+                        node.Value = "{}";
+                    return;
+                }
+                else
+                {
+                    var properties = type.GetProperties();
+                    foreach (var property in properties)
+                    {
+                        var propertyType = property.PropertyType;
+
+                        if (propertyType.IsClass && propertyType != typeof(string))
+                        {
+                            var childNode = new Node(property.Name);
+                            node.Nodes.Add(childNode);
+                            childNode.Nodes = new();
+                            BuildTree(childNode, property.GetValue(obj));
+                        }
+                        //TODO: check for array? JsonObject kills us
+                        else
+                        {
+                            var childNode = new Node(property.Name, property.GetValue(obj));
+                            node.Nodes.Add(childNode);
+                        }
+                    }
+                }
             }
+
+            BuildTree(baseNode, obj);
+            
             return baseNode;
         }
     }
