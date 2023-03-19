@@ -11,7 +11,7 @@ using System.IO;
 
 namespace Ornate.Lite
 {
-    public class BrowserView : UserControl
+    public partial class BrowserView : UserControl
     {
         public DevToolsProtocolHelper DevTools;
         public WebView2 browser;
@@ -26,11 +26,6 @@ namespace Ornate.Lite
         public BrowserView()
         {
             InitializeComponent();
-        }
-
-        private void InitializeComponent()
-        {
-            AvaloniaXamlLoader.Load(this);
 
             if (Design.IsDesignMode)
                 return;

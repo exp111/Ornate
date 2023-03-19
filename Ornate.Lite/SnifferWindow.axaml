@@ -42,13 +42,13 @@
 						<Grid Grid.Row="0">
 							<Label>Parsed Request</Label>
 							<ScrollViewer>
-								<TextBlock Margin="5,25,5,0" Name="ParsedRequestText" TextWrapping="Wrap">Content</TextBlock>
+								<TextBlock Margin="5,25,5,0" Name="ParsedRequest" TextWrapping="Wrap">Content</TextBlock>
 							</ScrollViewer>
 						</Grid>
 						<Grid Grid.Row="1">
 							<Label>Parsed Response</Label>
 							<ScrollViewer>
-								<TextBlock Margin="5,25,5,0" Name="ParsedResponseText" TextWrapping="Wrap">Content</TextBlock>
+								<TextBlock Margin="5,25,5,0" Name="ParsedResponse" TextWrapping="Wrap">Content</TextBlock>
 							</ScrollViewer>
 						</Grid>
 					</Grid>
@@ -90,8 +90,16 @@
 					</Grid>
 					<Grid Grid.Row="1">
 						<Label>Parsed Message</Label>
-						<ScrollViewer>
-							<TextBlock Margin="5,25,5,0" Name="FrameParsedText" TextWrapping="Wrap">Content</TextBlock>
+						<ScrollViewer> 
+							<TreeView Margin="5,25,5,0"
+									  Name="ParsedFrame"
+									  Items="{Binding ParsedFrameTree}">
+									<TreeView.ItemTemplate>
+										<TreeDataTemplate ItemsSource="{Binding Nodes}">
+											<TextBlock Text="{Binding}"/>
+										</TreeDataTemplate>
+									</TreeView.ItemTemplate>
+							</TreeView>
 						</ScrollViewer>
 					</Grid>
 				</Grid>

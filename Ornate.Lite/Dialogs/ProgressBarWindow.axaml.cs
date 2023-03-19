@@ -6,7 +6,7 @@ using System.Runtime.CompilerServices;
 
 namespace Ornate.Lite.Dialogs
 {
-    public class ProgressBarWindow : Window, INotifyPropertyChanged
+    public partial class ProgressBarWindow : Window, INotifyPropertyChanged
     {
         // Needed to notify the view that a property has changed
         public event PropertyChangedEventHandler PropertyChanged;
@@ -82,9 +82,8 @@ namespace Ornate.Lite.Dialogs
 
         public ProgressBarWindow()
         {
-            AvaloniaXamlLoader.Load(this);
+            InitializeComponent();
             DataContext = this;
-            ProgressBar a = new();
         }
     }
 }

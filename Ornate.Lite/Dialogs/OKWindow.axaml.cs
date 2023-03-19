@@ -8,7 +8,7 @@ using System.Runtime.CompilerServices;
 
 namespace Ornate.Lite.Dialogs
 {
-    public class OKWindow : Window, INotifyPropertyChanged
+    public partial class OKWindow : Window, INotifyPropertyChanged
     {
         // Needed to notify the view that a property has changed
         public event PropertyChangedEventHandler PropertyChanged;
@@ -36,12 +36,7 @@ namespace Ornate.Lite.Dialogs
 
         public OKWindow()
         {
-            InitializeComponents();
-        }
-
-        void InitializeComponents()
-        {
-            AvaloniaXamlLoader.Load(this);
+            InitializeComponent();
             DataContext = this;
         }
 

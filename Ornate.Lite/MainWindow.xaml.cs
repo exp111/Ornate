@@ -16,18 +16,13 @@ using System.Threading.Tasks;
 
 namespace Ornate.Lite
 {
-    public class MainWindow : Window
+    public partial class MainWindow : Window
     {
         private BrowserView ActiveBrowserView;
         private SnifferWindow Sniffer;
         public MainWindow()
         {
             InitializeComponent();
-        }
-
-        private void InitializeComponent()
-        {
-            AvaloniaXamlLoader.Load(this);
 
             if (Design.IsDesignMode)
                 return;

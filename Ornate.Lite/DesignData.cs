@@ -13,7 +13,8 @@ namespace Ornate.Lite
             Requests = new() { new() { Text = "GET https://playorna.com/api/me", Key = 0} },
             //TODO: set request/response text
             Sockets = new() { new() { Text = "/api/socket", Key = 0} },
-            Frames = new() { new() { Text = "-> {message='attack', target='slime'}"} }
+            Frames = new() { new() { Text = "-> {message='attack', target='slime'}"} },
+            ParsedFrameTree = new() { new("BaseMessage") { Nodes = new() { new("Method: Attack"), new("Target: Slime") } } }
         };
     }
 

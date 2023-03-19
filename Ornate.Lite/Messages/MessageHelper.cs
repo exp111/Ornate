@@ -101,7 +101,7 @@ namespace Ornate.Lite.Messages
         }
 
         // Tries to find and parse a websocket message that matches data
-        public static bool TryGetMessage(Direction direction, string payloadData, out IWSMessage message) 
+        public static bool TryGetMessage(Direction direction, string payloadData, out object message) 
         {
             message = null;
             try

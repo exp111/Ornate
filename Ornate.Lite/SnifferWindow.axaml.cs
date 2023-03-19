@@ -2,34 +2,23 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Interactivity;
-using Avalonia.Markup.Xaml;
 using Ornate.Lite.Messages;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Net;
+using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 
 namespace Ornate.Lite
 {
-    public class SnifferWindow : Window, INotifyPropertyChanged
+    public partial class SnifferWindow : Window, INotifyPropertyChanged
     {
         public BrowserView BrowserView;
         public WebView2 Browser;
         public Sniffer Sniffer;
-
-        //TODO: as we only need to change the text, we can bind their values to a property of ours
-        public TextBlock RequestText;
-        public TextBlock ResponseText;
-        public TextBlock ParsedRequestText;
-        public TextBlock ParsedResponseText;
-
-        // Socket Tab
-        public TextBlock SocketRequestText;
-        public TextBlock SocketResponseText;
-        public TextBlock FrameText;
-        public TextBlock FrameParsedText;
-        public ListBox SocketList;
 
         private bool hideLocalRequests = true;
         private bool showOnlyOrnaRequests = true;
@@ -50,6 +39,25 @@ namespace Ornate.Lite
         public ObservableCollection<RequestItem> sockets = new();
         public ObservableCollection<RequestItem> frames = new(); //TODO: use class that also contains Connection id?
 
+        private ObservableCollection<Node> parsedFrameTree = new();
+        public class Node
+        {
+            public ObservableCollection<Node> Nodes { get; set; }
+            public string Text;
+            public object Value;
+
+            public Node(string text, object value = null)
+            {
+                Text = text;
+                Value = value;
+            }
+
+            public override string ToString()
+            {
+                return Value != null ? $"{Text} = {Value}" : Text;
+            }
+        }
+
         #region Bindings
         // Needed to notify the view that a property has changed
         public event PropertyChangedEventHandler PropertyChanged;
@@ -57,6 +65,20 @@ namespace Ornate.Lite
         private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        public ObservableCollection<Node> ParsedFrameTree
+        {
+            get => parsedFrameTree;
+
+            set
+            {
+                if (value != parsedFrameTree)
+                {
+                    parsedFrameTree = value;
+                    NotifyPropertyChanged();
+                }
+            }
         }
 
         public ObservableCollection<RequestItem> Requests
@@ -161,30 +183,9 @@ namespace Ornate.Lite
         public SnifferWindow()
         {
             InitializeComponent();
-        }
-
-        private void InitializeComponent() //TODO: clear button
-        {
-            AvaloniaXamlLoader.Load(this);
             DataContext = this;
-
             if (Design.IsDesignMode)
                 return;
-
-#if DEBUG
-            this.AttachDevTools();
-#endif
-
-            RequestText = this.FindControl<TextBlock>("RequestText");
-            ResponseText = this.FindControl<TextBlock>("ResponseText");
-            ParsedRequestText = this.FindControl<TextBlock>("ParsedRequestText");
-            ParsedResponseText = this.FindControl<TextBlock>("ParsedResponseText");
-
-            SocketRequestText = this.FindControl<TextBlock>("SocketRequestText");
-            SocketResponseText = this.FindControl<TextBlock>("SocketResponseText");
-            FrameText = this.FindControl<TextBlock>("FrameText");
-            FrameParsedText = this.FindControl<TextBlock>("FrameParsedText");
-            SocketList = this.FindControl<ListBox>("SocketList");
 
             var lifetime = (IClassicDesktopStyleApplicationLifetime)Application.Current.ApplicationLifetime;
             var mainWindow = lifetime.MainWindow;
@@ -326,7 +327,7 @@ namespace Ornate.Lite
                 parsedReqText = parsed.ToString();
             //TODO: else make it generic
             //TODO: make this dynamic treeview
-            ParsedRequestText.Text = parsedReqText;
+            ParsedRequest.Text = parsedReqText;
 
             // Get and set response body
             var respText = "";
@@ -352,7 +353,7 @@ namespace Ornate.Lite
                 parsedRespText = parsedResponse.ToString();
             //TODO: else make it generic
             //TODO: make this dynamic treeview
-            ParsedResponseText.Text = parsedRespText;
+            ParsedResponse.Text = parsedRespText;
         }
 
         public async void OnSocketListSelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -395,11 +396,11 @@ namespace Ornate.Lite
             if (!Sniffer.WebSockets.TryGetValue(socketID, out var socket))
                 return;
 
+            ParsedFrameTree.Clear();
             var index = (int)((RequestItem)selected).Key;
             if (index > socket.Messages.Count)
             {
                 FrameText.Text = "Frame index out of range";
-                FrameParsedText.Text = "";
             }
 
             var msg = socket.Messages[index];
@@ -407,12 +408,26 @@ namespace Ornate.Lite
             FrameText.Text = reqText;
 
             //parse msg
-            var parsedText = "Not Implemented";
-            if (MessageHelper.TryGetMessage(msg.Direction, msg.Frame.PayloadData, out var parsed))
-                parsedText = parsed.ToString();
-            //TODO: else make it generic
-            //TODO: make this dynamic treeview
-            FrameParsedText.Text = parsedText;
+            if (!MessageHelper.TryGetMessage(msg.Direction, msg.Frame.PayloadData, out object parsed))
+                parsed = JsonSerializer.Deserialize<JsonNode>(msg.Frame.PayloadData); //TODO: this doesnt work and crashes
+            var baseNode = BuildNodeTree(parsed);
+            ParsedFrameTree.Add(baseNode);
+            //TODO: expand whole tree
+        }
+
+        public Node BuildNodeTree(object obj)
+        {
+            var type = obj.GetType();
+            var baseNode = new Node(type.Name);
+            var cur = baseNode;
+
+            //TODO: make recursive
+            cur.Nodes = new();
+            foreach (var member in type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
+            {
+                baseNode.Nodes.Add(new Node(member.Name, member.GetValue(obj)));
+            }
+            return baseNode;
         }
     }
 }
