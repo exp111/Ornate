@@ -41,4 +41,14 @@ namespace Ornate.Lite.Messages
             Path = path;
         }
     }
+
+    [AttributeUsage(AttributeTargets.Class)]
+    public class MessageAttribute : Attribute
+    {
+        public string Method { get; set; }
+        public MessageAttribute(string method)
+        {
+            Method = method;
+        }
+    }
 }

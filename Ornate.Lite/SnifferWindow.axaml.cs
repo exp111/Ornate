@@ -7,13 +7,8 @@ using Ornate.Lite.Messages;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.IO;
 using System.Net;
-using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Web;
 
 namespace Ornate.Lite
 {
@@ -278,7 +273,8 @@ namespace Ornate.Lite
             for (var i = 0; i < frames.Count; i++)
             {
                 var frame = frames[i];
-                var text = $"{frame.Opcode} {frame.PayloadData}";
+                var dirIndicator = frame.Direction == Direction.Sent ? "->" : "<-";
+                var text = $"{dirIndicator} {frame.Frame.Opcode} {frame.Frame.PayloadData}";
 
                 Frames.Add(new() { Text = text, Key = i });
             }
@@ -350,15 +346,13 @@ namespace Ornate.Lite
             }
             ResponseText.Text = respText;
 
-            // parse response //TODO: move into func?
-            {
-                var parsedRespText = "Not Implemented";
-                if (MessageHelper.TryGetResponse(uri, message.ResponseData, out var parsedResponse))
-                    parsedRespText = parsedResponse.ToString();
-                //TODO: else make it generic
-                //TODO: make this dynamic treeview
-                ParsedResponseText.Text = parsedRespText;
-            }
+            // parse response
+            var parsedRespText = "Not Implemented";
+            if (MessageHelper.TryGetResponse(uri, message.ResponseData, out var parsedResponse))
+                parsedRespText = parsedResponse.ToString();
+            //TODO: else make it generic
+            //TODO: make this dynamic treeview
+            ParsedResponseText.Text = parsedRespText;
         }
 
         public async void OnSocketListSelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -401,24 +395,24 @@ namespace Ornate.Lite
             if (!Sniffer.WebSockets.TryGetValue(socketID, out var socket))
                 return;
 
-            try
+            var index = (int)((RequestItem)selected).Key;
+            if (index > socket.Messages.Count)
             {
-                var index = (int)((RequestItem)selected).Key;
-                if (index > socket.Messages.Count)
-                {
-                    throw new IndexOutOfRangeException("Frame index out of range");
-                }
-
-                var msg = socket.Messages[index];
-                var reqText = $"Opcode: {msg.Opcode}\nPayloadData:\n{msg.PayloadData}"; //TODO: do we need to care about masking?
-                FrameText.Text = reqText;
-            }
-            catch (Exception ex)
-            {
-                FrameText.Text = $"Exception: {ex}";
+                FrameText.Text = "Frame index out of range";
+                FrameParsedText.Text = "";
             }
 
-            //TODO: parse msg
+            var msg = socket.Messages[index];
+            var reqText = $"Opcode: {msg.Frame.Opcode}\nPayloadData:\n{msg.Frame.PayloadData}"; //TODO: do we need to care about masking?
+            FrameText.Text = reqText;
+
+            //parse msg
+            var parsedText = "Not Implemented";
+            if (MessageHelper.TryGetMessage(msg.Direction, msg.Frame.PayloadData, out var parsed))
+                parsedText = parsed.ToString();
+            //TODO: else make it generic
+            //TODO: make this dynamic treeview
+            FrameParsedText.Text = parsedText;
         }
     }
 }

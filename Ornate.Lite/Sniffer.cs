@@ -57,9 +57,25 @@ namespace Ornate.Lite
         }
     }
 
+    public enum Direction
+    {
+        Sent,
+        Received
+    }
+    public class WebSocketMessage
+    {
+        public Direction Direction;
+        public Network.WebSocketFrame Frame;
+
+        public WebSocketMessage(Direction direction, Network.WebSocketFrame frame)
+        {
+            Direction = direction;
+            Frame = frame;
+        }
+    }
     public class WebSocketConnection
     {
-        public List<Network.WebSocketFrame> Messages = new();
+        public List<WebSocketMessage> Messages = new();
         public string URL;
         // Request isn't really necessary, as it only contains Headers, which aren't useful for us rn (cause they're empty) //TODO: also save those if fixed
         public Network.WebSocketResponse Response; // Response contains HeadersTest and RequestHeadersText
@@ -106,7 +122,7 @@ namespace Ornate.Lite
             if (!WebSockets.TryGetValue(e.RequestId, out var socket))
                 return;
 
-            socket.Messages.Add(e.Response);
+            socket.Messages.Add(new(Direction.Received, e.Response));
         }
 
         private void Network_WebSocketFrameSent(object sender, Network.WebSocketFrameSentEventArgs e)
@@ -114,7 +130,7 @@ namespace Ornate.Lite
             if (!WebSockets.TryGetValue(e.RequestId, out var socket))
                 return;
 
-            socket.Messages.Add(e.Response);
+            socket.Messages.Add(new(Direction.Sent, e.Response));
         }
 
         private void Network_WebSocketCreated(object sender, Network.WebSocketCreatedEventArgs e)
