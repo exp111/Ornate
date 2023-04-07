@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Interactivity;
 using Ornate.Lite.Messages;
+using Ornate.Lite.Messages.WS;
 using System;
 using System.Collections;
 using System.Collections.ObjectModel;
@@ -417,7 +418,7 @@ namespace Ornate.Lite
             FrameText.Text = reqText;
 
             //parse msg
-            if (!MessageHelper.TryGetMessage(msg.Direction, msg.Frame.PayloadData, out var parsed))
+            if (!WSMessageHelper.TryGetMessage(msg.Direction, msg.Frame.PayloadData, out var parsed))
                 parsed = JsonSerializer.Deserialize<JsonNode>(msg.Frame.PayloadData); //TODO: this doesnt work and crashes
             ParsedFrameTree.Add(BuildNodeTree(parsed));
             //TODO: expand whole tree
