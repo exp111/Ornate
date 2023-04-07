@@ -36,9 +36,9 @@ namespace Ornate.Lite
                 return Text;
             }
         }
-        public ObservableCollection<RequestItem> requests = new();
-        public ObservableCollection<RequestItem> sockets = new();
-        public ObservableCollection<RequestItem> frames = new(); //TODO: use class that also contains Connection id?
+        private ObservableCollection<RequestItem> requests = new();
+        private ObservableCollection<RequestItem> sockets = new();
+        private ObservableCollection<RequestItem> frames = new(); //TODO: use class that also contains Connection id?
 
         private ObservableCollection<Node> parsedRequestTree = new();
         private ObservableCollection<Node> parsedResponseTree = new();
@@ -417,7 +417,7 @@ namespace Ornate.Lite
             FrameText.Text = reqText;
 
             //parse msg
-            if (!MessageHelper.TryGetMessage(msg.Direction, msg.Frame.PayloadData, out object parsed))
+            if (!MessageHelper.TryGetMessage(msg.Direction, msg.Frame.PayloadData, out var parsed))
                 parsed = JsonSerializer.Deserialize<JsonNode>(msg.Frame.PayloadData); //TODO: this doesnt work and crashes
             ParsedFrameTree.Add(BuildNodeTree(parsed));
             //TODO: expand whole tree
@@ -455,53 +455,59 @@ namespace Ornate.Lite
                     return;
                 }
 
-                var type = obj.GetType();
-                if (typeof(IEnumerable).IsAssignableFrom(type))
+                try
                 {
-                    var isEmpty = true;
-                    foreach (var item in (IEnumerable)obj)
+                    var type = obj.GetType();
+                    if (typeof(IEnumerable).IsAssignableFrom(type))
                     {
-                        isEmpty = false;
-                        var itemType = item.GetType();
-                        //TODO: add special case for keyvaluepairs?
-                        if (itemType.IsClass && itemType != typeof(string))
+                        var isEmpty = true;
+                        foreach (var item in (IEnumerable)obj)
                         {
-                            var childNode = new Node(itemType.Name);
-                            node.Nodes.Add(childNode);
-                            childNode.Nodes = new();
-                            BuildTree(childNode, item);
+                            isEmpty = false;
+                            var itemType = item.GetType();
+                            //TODO: add special case for keyvaluepairs?
+                            if (itemType.IsClass && itemType != typeof(string))
+                            {
+                                var childNode = new Node(itemType.Name);
+                                node.Nodes.Add(childNode);
+                                childNode.Nodes = new();
+                                BuildTree(childNode, item);
+                            }
+                            else
+                            {
+                                var childNode = new Node(itemType.Name, item);
+                                node.Nodes.Add(childNode);
+                            }
                         }
-                        else
-                        {
-                            var childNode = new Node(itemType.Name, item);
-                            node.Nodes.Add(childNode);
-                        }
+                        if (isEmpty)
+                            node.Value = "{}";
+                        return;
                     }
-                    if (isEmpty)
-                        node.Value = "{}";
-                    return;
-                }
-                else
-                {
-                    var properties = type.GetProperties();
-                    foreach (var property in properties)
+                    else
                     {
-                        var propertyType = property.PropertyType;
+                        var properties = type.GetProperties();
+                        foreach (var property in properties)
+                        {
+                            var propertyType = property.PropertyType;
 
-                        if (propertyType.IsClass && propertyType != typeof(string))
-                        {
-                            var childNode = new Node(property.Name);
-                            node.Nodes.Add(childNode);
-                            childNode.Nodes = new();
-                            BuildTree(childNode, property.GetValue(obj));
-                        }
-                        //TODO: check for array? JsonObject kills us
-                        else
-                        {
-                            var childNode = new Node(property.Name, property.GetValue(obj));
-                            node.Nodes.Add(childNode);
+                            if (propertyType.IsClass && propertyType != typeof(string))
+                            {
+                                var childNode = new Node(property.Name);
+                                node.Nodes.Add(childNode);
+                                childNode.Nodes = new();
+                                BuildTree(childNode, property.GetValue(obj));
+                            }
+                            else
+                            {
+                                var childNode = new Node(property.Name, property.GetValue(obj));
+                                node.Nodes.Add(childNode);
+                            }
                         }
                     }
+                }
+                catch (Exception e)
+                {
+                    return;
                 }
             }
 

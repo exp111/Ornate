@@ -32,37 +32,4 @@ namespace Ornate.Lite.Messages
         [JsonPropertyName("success")]
         public bool Success { get; set; }
     }
-
-    public interface IWSMessage
-    {
-
-    }
-
-    //TODO: seperate into BaseDataMessage and BaseMessage?
-    // {"method":"ping","scope":"ping}
-    // {"method":"getstate","data":{},"scope":"getstate","sid":"<sid>"}
-    public class BaseMessage : IWSMessage
-    {
-        [JsonPropertyName("method")]
-        public string Method { get; set; }
-        [JsonPropertyName("scope")]
-        public string Scope { get; set; }
-        [JsonPropertyName("sid")]
-        public string? SID { get; set; }
-        [JsonPropertyName("data")]
-        public JsonObject? Data { get; set; }
-    }
-
-    //TODO: seperate into BaseWSResponse and BaseWSResultResponse?
-    // {"success":true,"scope":"ping"}
-    // {"success":true,"scope":"<id>","result":{...}}
-    public class BaseWSResponse : IWSMessage
-    {
-        [JsonPropertyName("success")]
-        public bool Success { get; set; }
-        [JsonPropertyName("scope")]
-        public string Scope { get; set; }
-        [JsonPropertyName("result")]
-        public JsonObject? Result { get; set; }
-    }
 }

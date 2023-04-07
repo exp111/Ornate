@@ -43,12 +43,22 @@ namespace Ornate.Lite.Messages
     }
 
     [AttributeUsage(AttributeTargets.Class)]
-    public class MessageAttribute : Attribute
+    public class WSMessageDataAttribute : Attribute
     {
         public string Method { get; set; }
-        public MessageAttribute(string method)
+        public WSMessageDataAttribute(string method)
         {
             Method = method;
+        }
+    }
+
+    [AttributeUsage(AttributeTargets.Class)]
+    public class WSResponseDataAttribute : Attribute
+    {
+        public string RequestMethod { get; set; }
+        public WSResponseDataAttribute(string requestMethod)
+        {
+            RequestMethod = requestMethod;
         }
     }
 }
