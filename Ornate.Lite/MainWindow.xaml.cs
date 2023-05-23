@@ -4,10 +4,15 @@ using Avalonia.Dialogs;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
+using GMap.NET;
+using GMap.NET.Avalonia;
+using GMap.NET.MapProviders;
 using Ornate.Lite.Dialogs;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -20,6 +25,7 @@ namespace Ornate.Lite
     {
         private BrowserView ActiveBrowserView;
         private SnifferWindow Sniffer;
+        public GMapControl MapControl { get; }
         public MainWindow()
         {
             InitializeComponent();
@@ -27,9 +33,39 @@ namespace Ornate.Lite
             if (Design.IsDesignMode)
                 return;
 
+            // Initialize the MapControl
+            MapControl = this.FindControl<GMapControl>("GMap");
+            LoadMap();
+
             CreateBrowserView();
         }
+        private void InitializeComponent()
+        {
+            AvaloniaXamlLoader.Load(this);
+        }
+        private void LoadMap()
+        {
+            // Configure GMap.NET settings here, such as center coordinates, zoom level, etc.
+            GMapProvider.WebProxy = System.Net.WebRequest.GetSystemWebProxy();
+            GMapProvider.WebProxy.Credentials = System.Net.CredentialCache.DefaultNetworkCredentials;
+            // Use OpenStreetMap
+            MapControl.MapProvider = GMapProviders.OpenStreetMap;
+            MapControl.Position = new PointLatLng(50.761119, 6.108917); //TODO: instead use current position
+            MapControl.Zoom = 15; //TODO: adjust Map Zoom
+            MapControl.FillEmptyTiles = true;
+            MapControl.MouseWheelZoomEnabled = true;
+            
 
+            // Add a static marker at the specified location
+            GMapMarker marker = new GMapMarker(MapControl.Position);
+            marker.Shape = new Avalonia.Controls.Shapes.Ellipse
+            {
+                Width = 10,
+                Height = 10,
+                Fill = Avalonia.Media.Brushes.Red
+            };
+            MapControl.Markers.Add(marker);
+        }
         private void CreateBrowserView()
         {
             //TODO: add autostart option to disable autostart?
@@ -206,7 +242,7 @@ namespace Ornate.Lite
         private async void OnDebugMenuItemClick(object sender, RoutedEventArgs e)
         {
             //TODO: remove when done
-            ActiveBrowserView.SetGeolocation(52.520007, 13.404954, 150);
+            ActiveBrowserView.SetGeolocation(50.761119, 6.108917, 150);
         }
 
         private async void OnMuteMenuItemClick(object sender, RoutedEventArgs e)
@@ -228,6 +264,53 @@ namespace Ornate.Lite
                 Sniffer = new SnifferWindow();
 
             Sniffer.Show(); //TODO: make this unshitty with a dialog or smth?
+        }
+
+        private async void OnCurrentLocationMenuItemClick(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                // Get the current geolocation
+                var currentPosition = await GetCurrentGeolocation();
+
+                // Find and remove markers set by the same function
+                var existingCurrentLocationMarkers = MapControl.Markers.Where(marker => marker.Tag?.ToString() == "CurrentPositionMarker").ToList();
+                foreach (var existingCurrentLocationMarker in existingCurrentLocationMarkers)   // Even though there should only be one marker at a time, we delete all of them. just in case
+                {
+                    MapControl.Markers.Remove(existingCurrentLocationMarker);
+                }
+
+                // Add a marker at the current position
+                await Dispatcher.UIThread.InvokeAsync(() =>
+                {
+                    GMapMarker marker = new GMapMarker(currentPosition);
+                    marker.Shape = new Avalonia.Controls.Shapes.Ellipse
+                    {
+                        Width = 10,
+                        Height = 10,
+                        Fill = Avalonia.Media.Brushes.Red
+                    };
+                    marker.Tag = "CurrentPositionMarker";
+
+                    MapControl.Markers.Add(marker);
+                    MapControl.CenterPosition = currentPosition;
+                });
+            }
+            catch (Exception ex)
+            {
+                // Handle the exception if unable to get the current location
+                Console.WriteLine("Error getting current location: " + ex.Message);
+            }
+        }
+
+        private async Task<PointLatLng> GetCurrentGeolocation()
+        {
+            // TODO: Implement the code to get the current geolocation
+
+            // Dummy location for testing
+            PointLatLng currentPosition = new PointLatLng(50.761119, 6.108917);
+
+            return currentPosition;
         }
     }
 }

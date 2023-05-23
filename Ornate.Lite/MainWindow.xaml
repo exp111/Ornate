@@ -1,23 +1,39 @@
 ﻿<Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+		xmlns:src="using:GMap.NET.Avalonia"
 		xmlns:local="using:Ornate.Lite"
+		mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="Ornate.Lite.MainWindow"
-        MinWidth="500"
-        MinHeight="300"
         Title="Ornate.Lite">
-	<DockPanel>
-		<Menu Name="mainMenu" DockPanel.Dock="Top">
-			<MenuItem Header="_File">
-				<MenuItem Header="_Debug" Click="OnDebugMenuItemClick"/>
-				<MenuItem Header="_Open Dev Tools..." Click="OnOpenDevToolsMenuItemClick"/>
-				<MenuItem Header="_Reload Game" Click="OnReloadGameMenuItemClick" />
-				<MenuItem Header="_Extract Content from APK..." Click="OnExtractAPKMenuItemClick" />
-				<MenuItem Header="_Open Website" Click="OnOpenWebsiteMenuItemClick" />
-				<MenuItem Header="_Toggle Mute" Click="OnMuteMenuItemClick" />
-				<MenuItem Header="_Show Sniffer" Click="OnSnifferMenuItemClick" />
-			</MenuItem>
-		</Menu>
-
-		<local:BrowserView Name="browser"/>
-	</DockPanel>
+	<Grid>
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="2*"/>
+			<!-- Left 2/3rd -->
+			<ColumnDefinition Width="1*"/>
+			<!-- Right 1/3rd -->
+		</Grid.ColumnDefinitions>
+		<!-- Dock Panel -->
+		<DockPanel Grid.Column="0">
+			<Menu Name="mainMenu" DockPanel.Dock="Top">
+				<MenuItem Header="_File">
+					<MenuItem Header="_Open Dev Tools..." Click="OnOpenDevToolsMenuItemClick"/>
+					<MenuItem Header="_Reload Game" Click="OnReloadGameMenuItemClick" />
+					<MenuItem Header="_Extract Content from APK..." Click="OnExtractAPKMenuItemClick" />
+					<MenuItem Header="_Open Website" Click="OnOpenWebsiteMenuItemClick" />
+					<MenuItem Header="_Toggle Mute" Click="OnMuteMenuItemClick" />
+					<MenuItem Header="_Show Sniffer" Click="OnSnifferMenuItemClick" />
+				</MenuItem>
+				<MenuItem Header="_Map">
+					<MenuItem Header="_Debug" Click="OnDebugMenuItemClick"/>
+					<MenuItem Header="_Current Location" Click="OnCurrentLocationMenuItemClick"/>
+				</MenuItem>
+			</Menu>
+			<local:BrowserView Name="browser"/>
+		</DockPanel>
+		<!-- Map Control -->
+		<src:GMapControl Name="GMap" Zoom="13" MaxZoom="24" MinZoom="1" Grid.Column="1"/>
+		
+	</Grid>
 </Window>
