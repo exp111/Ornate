@@ -1,6 +1,4 @@
-using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Dialogs;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
@@ -9,9 +7,6 @@ using GMap.NET.Avalonia;
 using GMap.NET.MapProviders;
 using Ornate.Lite.Dialogs;
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.IO;
 using System.IO.Compression;
@@ -25,7 +20,7 @@ namespace Ornate.Lite
     {
         private BrowserView ActiveBrowserView;
         private SnifferWindow Sniffer;
-        public GMapControl MapControl { get; }
+        private GMapControl Map;
         public MainWindow()
         {
             InitializeComponent();
@@ -34,9 +29,7 @@ namespace Ornate.Lite
                 return;
 
             // Initialize the MapControl
-            MapControl = this.FindControl<GMapControl>("GMap");
             LoadMap();
-
             CreateBrowserView();
         }
         private void InitializeComponent()
@@ -45,26 +38,30 @@ namespace Ornate.Lite
         }
         private void LoadMap()
         {
+            Map = this.FindControl<GMapControl>("map"); ;
+
             // Configure GMap.NET settings here, such as center coordinates, zoom level, etc.
             GMapProvider.WebProxy = System.Net.WebRequest.GetSystemWebProxy();
             GMapProvider.WebProxy.Credentials = System.Net.CredentialCache.DefaultNetworkCredentials;
             // Use OpenStreetMap
-            MapControl.MapProvider = GMapProviders.OpenStreetMap;
-            MapControl.Position = new PointLatLng(50.761119, 6.108917); //TODO: instead use current position
-            MapControl.Zoom = 15; //TODO: adjust Map Zoom
-            MapControl.FillEmptyTiles = true;
-            MapControl.MouseWheelZoomEnabled = true;
-            
+            Map.MapProvider = GMapProviders.OpenStreetMap;
+            Map.Position = new PointLatLng(50.761119, 6.108917); //TODO: instead use current position
+            Map.Zoom = 15; //TODO: adjust Map Zoom
+            Map.FillEmptyTiles = true;
+            Map.MouseWheelZoomEnabled = true;
+
 
             // Add a static marker at the specified location
-            GMapMarker marker = new GMapMarker(MapControl.Position);
-            marker.Shape = new Avalonia.Controls.Shapes.Ellipse
+            GMapMarker marker = new(Map.Position)
             {
-                Width = 10,
-                Height = 10,
-                Fill = Avalonia.Media.Brushes.Red
+                Shape = new Avalonia.Controls.Shapes.Ellipse
+                {
+                    Width = 10,
+                    Height = 10,
+                    Fill = Avalonia.Media.Brushes.Red
+                }
             };
-            MapControl.Markers.Add(marker);
+            Map.Markers.Add(marker);
         }
         private void CreateBrowserView()
         {
@@ -245,6 +242,18 @@ namespace Ornate.Lite
             ActiveBrowserView.SetGeolocation(50.761119, 6.108917, 150);
         }
 
+        private async void OnMapDebugMenuItemClick(object sender, RoutedEventArgs e)
+        {
+            //TODO: remove when done
+            // gets the current center pos and sets our pos to it
+            var pos = Map.Position;
+            // create a marker there
+            SetCurrentMapLocation(pos);
+
+            // set the current location ingame
+            ActiveBrowserView?.SetGeolocation(pos);
+        }
+
         private async void OnMuteMenuItemClick(object sender, RoutedEventArgs e)
         {
             //TODO: mute checkbox
@@ -266,6 +275,42 @@ namespace Ornate.Lite
             Sniffer.Show(); //TODO: make this unshitty with a dialog or smth?
         }
 
+        // Creates a marker on the map and jumps to it
+        private async void SetCurrentMapLocation(PointLatLng pos)
+        {
+            // Find and remove current location markers
+            for (var i = 0; i < Map.Markers.Count; i++) // Even though there should only be one marker at a time, we delete all of them. just in case
+            {
+                var marker = Map.Markers[i];
+                if (marker.Tag?.ToString() == "CurrentPositionMarker")
+                {
+                    Map.Markers.Remove(marker);
+                    i--; // as we're enumerating this list and deleted an item, also decrease the cur index
+                }
+            }
+
+            // Add a marker at the current position
+            await Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                //FIXME: markers arent shown. known issue?
+                GMapMarker marker = new(pos)
+                {
+                    Shape = new Avalonia.Controls.Shapes.Ellipse
+                    {
+                        Width = 10,
+                        Height = 10,
+                        Fill = Avalonia.Media.Brushes.Red
+                    },
+                    Tag = "CurrentPositionMarker"
+                };
+
+                Map.Markers.Add(marker);
+                // jump to pos
+                Map.CenterPosition = pos; //FIXME: doesnt work after setting once?
+            });
+        }
+
+        // Gets the current irl location and sets our location to it
         private async void OnCurrentLocationMenuItemClick(object sender, RoutedEventArgs e)
         {
             try
@@ -273,33 +318,15 @@ namespace Ornate.Lite
                 // Get the current geolocation
                 var currentPosition = await GetCurrentGeolocation();
 
-                // Find and remove markers set by the same function
-                var existingCurrentLocationMarkers = MapControl.Markers.Where(marker => marker.Tag?.ToString() == "CurrentPositionMarker").ToList();
-                foreach (var existingCurrentLocationMarker in existingCurrentLocationMarkers)   // Even though there should only be one marker at a time, we delete all of them. just in case
-                {
-                    MapControl.Markers.Remove(existingCurrentLocationMarker);
-                }
+                SetCurrentMapLocation(currentPosition);
 
-                // Add a marker at the current position
-                await Dispatcher.UIThread.InvokeAsync(() =>
-                {
-                    GMapMarker marker = new GMapMarker(currentPosition);
-                    marker.Shape = new Avalonia.Controls.Shapes.Ellipse
-                    {
-                        Width = 10,
-                        Height = 10,
-                        Fill = Avalonia.Media.Brushes.Red
-                    };
-                    marker.Tag = "CurrentPositionMarker";
-
-                    MapControl.Markers.Add(marker);
-                    MapControl.CenterPosition = currentPosition;
-                });
+                // set the current location ingame
+                ActiveBrowserView?.SetGeolocation(currentPosition);
             }
             catch (Exception ex)
             {
                 // Handle the exception if unable to get the current location
-                Console.WriteLine("Error getting current location: " + ex.Message);
+                Console.WriteLine($"Error getting current location: {ex.Message}");
             }
         }
 
@@ -308,7 +335,7 @@ namespace Ornate.Lite
             // TODO: Implement the code to get the current geolocation
 
             // Dummy location for testing
-            PointLatLng currentPosition = new PointLatLng(50.761119, 6.108917);
+            PointLatLng currentPosition = new(50.761119, 6.108917);
 
             return currentPosition;
         }
