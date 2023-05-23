@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net7.0-windows</TargetFramework>
     <AssemblyName>Ornate.Lite</AssemblyName>
     <RootNamespace>Ornate.Lite</RootNamespace>
     <Configurations>Debug;Release;Debug_WindowlessRender</Configurations>
@@ -27,6 +27,25 @@
     <NSHighResolutionCapable>true</NSHighResolutionCapable>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
   </PropertyGroup>
+  
+  <ItemGroup>
+    <AvaloniaXaml Remove="data\**" />
+    <AvaloniaXaml Remove="Properties\**" />
+    <AvaloniaXaml Remove="run\**" />
+    <AvaloniaXaml Remove="UserData\**" />
+    <Compile Remove="data\**" />
+    <Compile Remove="Properties\**" />
+    <Compile Remove="run\**" />
+    <Compile Remove="UserData\**" />
+    <EmbeddedResource Remove="data\**" />
+    <EmbeddedResource Remove="Properties\**" />
+    <EmbeddedResource Remove="run\**" />
+    <EmbeddedResource Remove="UserData\**" />
+    <None Remove="data\**" />
+    <None Remove="Properties\**" />
+    <None Remove="run\**" />
+    <None Remove="UserData\**" />
+  </ItemGroup>
 
   <ItemGroup>
     <None Remove="App.xaml" />
@@ -47,8 +66,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Avalonia.Desktop" Version="0.10.18" />
-    <PackageReference Include="Avalonia.Diagnostics" Version="0.10.18" />
+    <PackageReference Include="Avalonia.Desktop" Version="0.10.21" />
+    <PackageReference Include="Avalonia.Diagnostics" Version="0.10.21" />
+    <PackageReference Include="GMap.NET.WinAvalonia" Version="2.1.7" />
     <PackageReference Include="Microsoft.Web.WebView2.DevToolsProtocolExtension" Version="1.0.824" />
     <PackageReference Include="WebView2.Avalonia" Version="1.0.1518.46-preview.230207.17" />
     <PackageReference Include="XamlNameReferenceGenerator" Version="1.6.1" />

@@ -1,12 +1,10 @@
 ﻿using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
 using Avalonia.VisualTree;
-using Microsoft.Web.WebView2.Core;
+using GMap.NET;
 using Microsoft.Web.WebView2.Core.DevToolsProtocolExtension;
 using Ornate.Lite.Dialogs;
 using Ornate.Lite.WebView;
 using System;
-using System.Collections.Generic;
 using System.IO;
 
 namespace Ornate.Lite
@@ -71,6 +69,11 @@ namespace Ornate.Lite
         public void SetGeolocation(double? latitude, double? longitude, double? accuracy)
         {
             DevTools.Emulation.SetGeolocationOverrideAsync(latitude, longitude, accuracy);
+        }
+
+        public void SetGeolocation(PointLatLng pos)
+        {
+            SetGeolocation(pos.Lat, pos.Lng, 150);
         }
 
         // Opens the game in the browser

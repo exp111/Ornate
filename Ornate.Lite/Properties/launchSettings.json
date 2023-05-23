@@ -1,9 +1,0 @@
-{
-  "profiles": {
-    "Ornate.Lite": {
-      "commandName": "Project",
-      "workingDirectory": "E:\\D\\Visual Studio\\Projects\\Ornate\\run",
-      "nativeDebugging": true
-    }
-  }
-}

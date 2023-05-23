@@ -366,3 +366,6 @@ FodyWeavers.xsd
 run/
 
 Requests/
+/Ornate.Lite/data
+/Ornate.Lite/Properties/launchSettings.json
+/Ornate.Lite/UserData/EBWebView
