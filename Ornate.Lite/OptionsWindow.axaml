@@ -1,0 +1,16 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Ornate.Lite"
+        x:Class="Ornate.Lite.OptionsWindow"
+        Title="Options" Height="250" Width="300">
+	<Grid>
+		<StackPanel Margin="10">
+			<CheckBox x:Name="chkAutoStart" Content="Auto Start" Margin="0 0 0 10" IsChecked="{Binding AutoStart, Mode=TwoWay}"/>
+			<CheckBox x:Name="chkAutoMute" Content="Auto Mute" Margin="0 0 0 10" IsChecked="{Binding AutoMute, Mode=TwoWay}"/>
+			<CheckBox x:Name="chkAutoSniffer" Content="Auto Sniffer" IsChecked="{Binding AutoSniffer, Mode=TwoWay}"/>
+			<Button Content="Save" Click="Save_Click" Margin="0 20 0 0"/>
+		</StackPanel>
+	</Grid>
+</Window>
