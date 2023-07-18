@@ -84,6 +84,9 @@
     <Compile Update="Dialogs\OKWindow.axaml.cs">
       <DependentUpon>OKWindow.axaml</DependentUpon>
     </Compile>
+    <Compile Update="OptionsWindow.axaml.cs">
+      <DependentUpon>OptionsWindow.axaml</DependentUpon>
+    </Compile>
   </ItemGroup>
 
 </Project>

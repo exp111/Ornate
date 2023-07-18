@@ -53,6 +53,7 @@ namespace Ornate.Lite
             sniffer.Start(); //TODO: sniffer toggle
 
             browser.CoreWebView2.Settings.UserAgent = "Mozilla/5.0 (iPhone; CPU iPhone OS 16_3_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148"; //TODO: change to android?
+            //TODO: init config here or smth
 #if !DEBUG
             OpenGame(); //TODO: autostart config
 #endif

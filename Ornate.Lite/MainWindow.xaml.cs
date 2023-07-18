@@ -21,6 +21,7 @@ namespace Ornate.Lite
         private BrowserView ActiveBrowserView;
         private SnifferWindow Sniffer;
         private GMapControl Map;
+        private UserOptions Options;
         public MainWindow()
         {
             InitializeComponent();
@@ -79,6 +80,7 @@ namespace Ornate.Lite
             ActiveBrowserView.OpenDevTools();
         }
 
+        //TODO: move this pls away
         private async void OnExtractAPKMenuItemClick(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFileDialog = new()
@@ -184,7 +186,7 @@ namespace Ornate.Lite
                         asset.ExtractToFile(path, true);
                         current++;
                         // Update the progress bar in the ui thread
-                        Dispatcher.UIThread.Post(() => progressBar.Value = (int)((current / total)*100));
+                        Dispatcher.UIThread.Post(() => progressBar.Value = (int)((current / total) * 100));
                     }
                     // Close the dialog from the UI thread
                     Dispatcher.UIThread.Post(() => progressBar.Close());
@@ -223,8 +225,8 @@ namespace Ornate.Lite
             try
             {
                 ActiveBrowserView.SetAddress(result);
-            } 
-            catch (Exception ex) 
+            }
+            catch (Exception ex)
             {
                 // Show error window
                 OKWindow errorWindow = new()
@@ -239,7 +241,6 @@ namespace Ornate.Lite
         private async void OnDebugMenuItemClick(object sender, RoutedEventArgs e)
         {
             //TODO: remove when done
-            ActiveBrowserView.SetGeolocation(50.761119, 6.108917, 150);
         }
 
         private async void OnMapDebugMenuItemClick(object sender, RoutedEventArgs e)
@@ -248,7 +249,7 @@ namespace Ornate.Lite
             // gets the current center pos and sets our pos to it
             var pos = Map.Position;
             // create a marker there
-            SetCurrentMapLocation(pos);
+            MarkCurrentMapLocation(pos);
 
             // set the current location ingame
             ActiveBrowserView?.SetGeolocation(pos);
@@ -261,7 +262,7 @@ namespace Ornate.Lite
         }
 
         //TODO: options window, auto sniffer attach, auto game start, mute sounds etc
-        //TODO: gps window/sidebar
+        //TODO: gps window/sidebar -> visible coordinates / markers
 
         private async void OnSnifferMenuItemClick(object sender, RoutedEventArgs e)
         {
@@ -276,7 +277,7 @@ namespace Ornate.Lite
         }
 
         // Creates a marker on the map and jumps to it
-        private async void SetCurrentMapLocation(PointLatLng pos)
+        private async void MarkCurrentMapLocation(PointLatLng pos)
         {
             // Find and remove current location markers
             for (var i = 0; i < Map.Markers.Count; i++) // Even though there should only be one marker at a time, we delete all of them. just in case
@@ -310,24 +311,17 @@ namespace Ornate.Lite
             });
         }
 
-        // Gets the current irl location and sets our location to it
-        private async void OnCurrentLocationMenuItemClick(object sender, RoutedEventArgs e)
+        private async void OnSaveLocationMenuItemClick(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                // Get the current geolocation
-                var currentPosition = await GetCurrentGeolocation();
+            // Get the current center pos
+            var pos = Map.Position;
+        }
 
-                SetCurrentMapLocation(currentPosition);
+        private async void OnOptionsMenuItemClick(object sender, RoutedEventArgs e)
+        {
+            OptionsWindow optionsWindow = new OptionsWindow();
 
-                // set the current location ingame
-                ActiveBrowserView?.SetGeolocation(currentPosition);
-            }
-            catch (Exception ex)
-            {
-                // Handle the exception if unable to get the current location
-                Console.WriteLine($"Error getting current location: {ex.Message}");
-            }
+            optionsWindow.ShowDialog(this);
         }
 
         private async Task<PointLatLng> GetCurrentGeolocation()
@@ -339,5 +333,13 @@ namespace Ornate.Lite
 
             return currentPosition;
         }
+
+    }
+    public class UserOptions
+    {
+        public bool AutoStart { get; set; }
+        public bool AutoMute { get; set; }
+        public bool AutoSniffer { get; set; }
+        public PointLatLng SavePosition { get; set; }
     }
 }
