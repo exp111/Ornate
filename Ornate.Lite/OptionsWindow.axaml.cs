@@ -1,6 +1,7 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using System;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Configuration;
 using System.IO;
@@ -20,41 +21,74 @@ namespace Ornate.Lite
         {
             InitializeComponent();
             DataContext = this;
+            // Read options //TODO: dont do this every time we open the option window?
+            ReadOptions();
         }
 
         private void Save_Click(object sender, RoutedEventArgs e)
         {
-            // Save the options and close the window
-            bool autoStartValue = chkAutoStart.IsChecked ?? false;
-            bool autoMuteValue = chkAutoMute.IsChecked ?? false;
-            bool autoSnifferValue = chkAutoSniffer.IsChecked ?? false;
-
             // Save the options to the configuration file
-            SaveOptions(autoStartValue, autoMuteValue, autoSnifferValue);
+            SaveOptions();
 
             // Close the options window
             Close();
         }
 
-        private void SaveOptions(bool autoStartValue, bool autoMuteValue, bool autoSnifferValue)
+        private string ReadSetting<T>(string key, T fallback)
         {
-            // Get the configuration file path
-            string configFileName = "OrnateLite.config";
-            string configFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, configFileName);
-
-            // Load the configuration file
-            ExeConfigurationFileMap fileMap = new ExeConfigurationFileMap();
-            fileMap.ExeConfigFilename = configFilePath;
-            Configuration config = ConfigurationManager.OpenMappedExeConfiguration(fileMap, ConfigurationUserLevel.None);
-
-            // Set the option values in the configuration
-            config.AppSettings.Settings["AutoStart"].Value = autoStartValue.ToString();
-            config.AppSettings.Settings["AutoMute"].Value = autoMuteValue.ToString();
-            config.AppSettings.Settings["AutoSniffer"].Value = autoSnifferValue.ToString();
-
-            // Save the configuration changes
-            config.Save(ConfigurationSaveMode.Modified);
+            // get read only config
+            var config = ConfigurationManager.AppSettings;
+            var result = config[key] ?? fallback.ToString(); //TODO: convert to T
+            return result;
         }
+
+        private void SetSetting<T>(string key, T val)
+        {
+            // Open config file
+            var configFile = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+            var config = configFile.AppSettings.Settings;
+
+            if (config[key] != null)
+                config[key].Value = val.ToString();
+            else
+                config.Add(key, val.ToString());
+
+            // save
+            configFile.Save(ConfigurationSaveMode.Modified);
+            ConfigurationManager.RefreshSection(configFile.AppSettings.SectionInformation.Name);
+        }
+
+        private void ReadOptions()
+        {
+            try
+            {
+                AutoStart = Boolean.Parse(ReadSetting("AutoStart", true));
+                AutoMute = Boolean.Parse(ReadSetting("AutoMute", true));
+                AutoSniffer = Boolean.Parse(ReadSetting("AutoSniffer", false));
+            }
+            catch (Exception e) 
+            {
+                //TODO: show to user
+                throw new($"Failed reading options: {e}");
+            }
+        }
+
+        private void SaveOptions()
+        {
+            //TODO: probably better to get config before and then set via extensions to not reopen a file x times
+            try
+            {
+                // Set the option values in the configuration
+                SetSetting("AutoStart", AutoStart);
+                SetSetting("AutoMute", AutoMute);
+                SetSetting("AutoSniffer", AutoSniffer);
+            }
+            catch (Exception e) 
+            {
+                //TODO: show to user
+                throw new($"Failed saving options: {e}");
+            }
+}
 
 
         // Options properties

@@ -7,29 +7,29 @@
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="Ornate.Lite.MainWindow"
         Title="Ornate.Lite">
-    <Grid ColumnDefinitions="2*,auto, 1*">
-        <!-- Dock Panel -->
-        <DockPanel Grid.Column="0">
-            <Menu Name="mainMenu" DockPanel.Dock="Top">
-                <MenuItem Header="_File">
+	<Grid ColumnDefinitions="2*,auto, 1*">
+		<!-- Dock Panel -->
+		<DockPanel Grid.Column="0">
+			<Menu Name="mainMenu" DockPanel.Dock="Top">
+				<MenuItem Header="_File">
 					<MenuItem Header="_Options" Click="OnOptionsMenuItemClick" />
-                    <MenuItem Header="_Open Dev Tools..." Click="OnOpenDevToolsMenuItemClick" />
-                    <MenuItem Header="_Reload Game" Click="OnReloadGameMenuItemClick" />
-                    <MenuItem Header="_Extract Content from APK..." Click="OnExtractAPKMenuItemClick" />
-                    <MenuItem Header="_Open Website" Click="OnOpenWebsiteMenuItemClick" />
-                    <MenuItem Header="_Toggle Mute" Click="OnMuteMenuItemClick" />
-                    <MenuItem Header="_Show Sniffer" Click="OnSnifferMenuItemClick" />
+					<MenuItem Header="_Open Dev Tools..." Click="OnOpenDevToolsMenuItemClick" />
+					<MenuItem Header="_Reload Game" Click="OnReloadGameMenuItemClick" />
+					<MenuItem Header="_Extract Content from APK..." Click="OnExtractAPKMenuItemClick" />
+					<MenuItem Header="_Open Website" Click="OnOpenWebsiteMenuItemClick" />
+					<MenuItem Header="_Toggle Mute" Click="OnMuteMenuItemClick" />
+					<MenuItem Header="_Show Sniffer" Click="OnSnifferMenuItemClick" />
 					<MenuItem Header="_Debug" Click="OnDebugMenuItemClick" />
 				</MenuItem>
-            </Menu>
-            <local:BrowserView Name="browser"/>
-        </DockPanel>
+			</Menu>
+			<local:BrowserView Name="browser"/>
+		</DockPanel>
 		<!-- StackPanel -->
 		<StackPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10">
 			<Button Content="_Debug" Click="OnMapDebugMenuItemClick" Margin="0,0,0,5" />
 			<Button Content="_Save Location" Click="OnSaveLocationMenuItemClick" Margin="0,0,0,5" />
 		</StackPanel>
-        <!-- Map Control -->
-        <gmap:GMapControl Grid.Column="2" Name="map" Zoom="13" MaxZoom="24" MinZoom="1"/>
-    </Grid>
+		<!-- Map Control -->
+		<gmap:GMapControl Grid.Column="2" Name="map" Zoom="13" MaxZoom="24" MinZoom="1"/>
+	</Grid>
 </Window>

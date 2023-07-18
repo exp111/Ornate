@@ -80,6 +80,7 @@ namespace Ornate.Lite
             ActiveBrowserView.OpenDevTools();
         }
 
+        //TODO: move this pls away
         private async void OnExtractAPKMenuItemClick(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFileDialog = new()
@@ -185,7 +186,7 @@ namespace Ornate.Lite
                         asset.ExtractToFile(path, true);
                         current++;
                         // Update the progress bar in the ui thread
-                        Dispatcher.UIThread.Post(() => progressBar.Value = (int)((current / total)*100));
+                        Dispatcher.UIThread.Post(() => progressBar.Value = (int)((current / total) * 100));
                     }
                     // Close the dialog from the UI thread
                     Dispatcher.UIThread.Post(() => progressBar.Close());
@@ -224,8 +225,8 @@ namespace Ornate.Lite
             try
             {
                 ActiveBrowserView.SetAddress(result);
-            } 
-            catch (Exception ex) 
+            }
+            catch (Exception ex)
             {
                 // Show error window
                 OKWindow errorWindow = new()
@@ -312,8 +313,8 @@ namespace Ornate.Lite
 
         private async void OnSaveLocationMenuItemClick(object sender, RoutedEventArgs e)
         {
-                // Get the current center pos
-                var pos = Map.Position;       
+            // Get the current center pos
+            var pos = Map.Position;
         }
 
         private async void OnOptionsMenuItemClick(object sender, RoutedEventArgs e)
@@ -339,6 +340,6 @@ namespace Ornate.Lite
         public bool AutoStart { get; set; }
         public bool AutoMute { get; set; }
         public bool AutoSniffer { get; set; }
-        public PointLatLng SavePosition { get; set;}
+        public PointLatLng SavePosition { get; set; }
     }
 }
